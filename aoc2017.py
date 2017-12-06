@@ -46,12 +46,12 @@ For example:
 What is the solution to your captcha?
 '''
 def day01_1():
-    input = input_for_day(1)
-    result = int(input[0]) if input[0] == input[len(input) - 1] else 0
-    for i in range(0, len(input) - 1):
-        if input[i] == input[i + 1]:
-            result += int(input[i])
-    return result
+    digits = input_for_day(1)
+    solution = int(digits[0]) if digits[0] == digits[len(digits) - 1] else 0
+    for i in range(0, len(digits) - 1):
+        if digits[i] == digits[i + 1]:
+            solution += int(digits[i])
+    return solution
 
 '''
 You notice a progress bar that jumps to 50% completion. Apparently, the
@@ -77,13 +77,13 @@ For example:
 What is the solution to your new captcha?
 '''
 def day01_2():
-    input = input_for_day(1)
-    l = len(input)
-    result = 0
-    for i in range(0, len(input)):
-        if input[i] == input[(l - (l - i) + l / 2) % l]:
-            result += int(input[i])
-    return result
+    digits = input_for_day(1)
+    count = len(digits)
+    solution = 0
+    for i in range(0, len(digits)):
+        if digits[i] == digits[(i + count / 2) % count]:
+            solution += int(digits[i])
+    return solution
 
 '''
 --- Day 2: Corruption Checksum ---
@@ -117,17 +117,17 @@ What is the checksum for the spreadsheet in your puzzle input?
 '''
 def day02_1():
     rows = input_for_day(2)
-    result = 0
+    checksum = 0
     for row in rows:
-        result += max(row) - min(row)
-    return result
+        checksum += max(row) - min(row)
+    return checksum
 
 '''
-            "Great work; looks like we're on the right track after all. Here's a star
+"Great work; looks like we're on the right track after all. Here's a star
 for your effort." However, the program seems a little worried. Can
 programs be worried?
 
-            "Based on what we're seeing, it looks like all the User wanted is some
+"Based on what we're seeing, it looks like all the User wanted is some
 information about the evenly divisible values in the spreadsheet.
 Unfortunately, none of us are equipped for that kind of calculation -
 most of us specialize in bitwise operations."
@@ -154,13 +154,13 @@ What is the sum of each row's result in your puzzle input?
 '''
 def day02_2():
     rows = input_for_day(2)
-    result = 0
+    even_division_sum = 0
     for row in rows:
         for dividend in row:
             for divisor in row:
                 if dividend != divisor and dividend % divisor == 0:
-                    result += dividend / divisor
-    return result
+                    even_division_sum += dividend / divisor
+    return even_division_sum
 
 '''
 --- Day 3: Spiral Memory ---
@@ -291,12 +291,12 @@ def day03_2(test_input = 0):
         if value < input:
             mem[position] = value
             value = 0
-        if direction_steps == direction_steps_max:
-            direction = directions[(directions.index(direction) + 1) % 4]
-            direction_steps = 0
-            pivots += 1
-            if pivots % 2 == 0:
-                direction_steps_max += 1
+            if direction_steps == direction_steps_max:
+                direction = directions[(directions.index(direction) + 1) % 4]
+                direction_steps = 0
+                pivots += 1
+                if pivots % 2 == 0:
+                    direction_steps_max += 1
     return value
     
 '''
@@ -318,19 +318,8 @@ The system's full passphrase list is available as your puzzle input. How
 many passphrases are valid?
 '''
 def day04_1(test_input = 0):
-    input = test_input if test_input else input_for_day(4)
-    valid_passphrases = 0
-    for passphrase in input:
-        is_valid = True
-        words = passphrase.split(' ')
-        used_words = []
-        for word in words:
-            is_valid = is_valid and word not in used_words
-            if is_valid:
-                used_words.append(word)
-        if is_valid:
-            valid_passphrases += 1
-    return valid_passphrases
+    passphrases = test_input if test_input else input_for_day(4)
+    return day04_shared(passphrases, 1)
 
 '''
 For added security, yet another system policy has been put in place. Now,
@@ -352,18 +341,19 @@ For example:
 Under this new system policy, how many passphrases are valid?
 '''
 def day04_2(test_input = 0):
-    input = test_input if test_input else input_for_day(4)
+    passphrases = test_input if test_input else input_for_day(4)
+    return day04_shared(passphrases, 2)
+
+# Day 04 shared code
+def day04_shared(passphrases, puzzle_no):
     valid_passphrases = 0
-    for passphrase in input:
-        is_valid = True
+    for passphrase in passphrases:
         words = passphrase.split(' ')
-        used_sets = []
-        for word in words:
-            characters = set(word)
-            is_valid = is_valid and characters not in used_sets
-            if is_valid:
-                used_sets.append(characters)
-        if is_valid:
+        if puzzle_no == 1:
+            unique = set(words)
+        else:
+            unique = set(map(lambda word: ''.join(sorted(list(word))), words))
+        if len(unique) == len(words):
             valid_passphrases += 1
     return valid_passphrases
 
@@ -412,14 +402,7 @@ How many steps does it take to reach the exit?
 '''
 def day05_1(test_input = 0):
     maze = test_input if test_input else input_for_day(5)
-    steps = 0
-    position = 0
-    while position >= 0 and position < len(maze):
-        last_position = position
-        position += maze[position]
-        maze[last_position] += 1
-        steps += 1
-    return steps
+    return day05_shared(maze, 1)
 
 '''
 Now, the jumps are even stranger: after each jump, if the offset was
@@ -433,14 +416,116 @@ How many steps does it now take to reach the exit?
 '''
 def day05_2(test_input = 0):
     maze = test_input if test_input else input_for_day(5)
+    return day05_shared(maze, 2)
+
+# Day 05 shared code
+def day05_shared(maze, puzzle_no):
     steps = 0
     position = 0
     while position >= 0 and position < len(maze):
         last_position = position
         position += maze[position]
-        maze[last_position] += 1 if maze[last_position] < 3 else -1
+        increment = 1 if puzzle_no == 1 or maze[last_position] < 3 else -1
+        maze[last_position] += increment
         steps += 1
     return steps    
+
+'''
+--- Day 6: Memory Reallocation ---
+
+A debugger program here is having an issue: it is trying to repair a
+memory reallocation routine, but it keeps getting stuck in an infinite
+loop.
+
+In this area, there are sixteen memory banks; each memory bank can hold
+any number of blocks. The goal of the reallocation routine is to balance
+the blocks between the memory banks.
+
+The reallocation routine operates in cycles. In each cycle, it finds the
+memory bank with the most blocks (ties won by the lowest-numbered memory
+bank) and redistributes those blocks among the banks. To do this, it
+removes all of the blocks from the selected bank, then moves to the next
+(by index) memory bank and inserts one of the blocks. It continues doing
+this until it runs out of blocks; if it reaches the last memory bank, it
+wraps around to the first one.
+
+The debugger would like to know how many redistributions can be done
+before a blocks-in-banks configuration is produced that has been seen
+before.
+
+For example, imagine a scenario with only four memory banks:
+
+  - The banks start with 0, 2, 7, and 0 blocks. The third bank has the
+    most blocks, so it is chosen for redistribution.
+  - Starting with the next bank (the fourth bank) and then continuing to
+    the first bank, the second bank, and so on, the 7 blocks are spread
+    out over the memory banks. The fourth, first, and second banks get
+    two blocks each, and the third bank gets one back. The final result
+    looks like this: 2 4 1 2.
+  - Next, the second bank is chosen because it contains the most blocks
+    (four). Because there are four memory banks, each gets one block. The
+    result is: 3 1 2 3.
+  - Now, there is a tie between the first and fourth memory banks, both
+    of which have three blocks. The first bank wins the tie, and its
+    three blocks are distributed evenly over the other three banks,
+    leaving it with none: 0 2 3 4.
+  - The fourth bank is chosen, and its four blocks are distributed such
+    that each of the four banks receives one: 1 3 4 1.
+  - The third bank is chosen, and the same thing happens: 2 4 1 2.
+
+At this point, we've reached a state we've seen before: 2 4 1 2 was
+already seen. The infinite loop is detected after the fifth block
+redistribution cycle, and so the answer in this example is 5.
+
+Given the initial block counts in your puzzle input, how many
+redistribution cycles must be completed before a configuration is
+produced that has been seen before?
+'''
+def day06_1(test_input = 0):
+    banks = test_input if test_input else input_for_day(6)
+    return day06_shared(banks, 1)
+
+'''
+Out of curiosity, the debugger would also like to know the size of the
+loop: starting from a state that has already been seen, how many block
+redistribution cycles must be performed before that same state is seen
+again?
+
+In the example above, 2 4 1 2 is seen again after four cycles, and so the
+answer in that example would be 4.
+
+How many cycles are in the infinite loop that arises from the
+configuration in your puzzle input?
+'''
+def day06_2(test_input = 0):
+    banks = test_input if test_input else input_for_day(6)
+    return day06_shared(banks, 2)
+
+# Day 06 shared code
+def day06_shared(banks, puzzle_no):
+    num_banks = len(banks)
+    visited_states = []
+    max_blocks = 0
+    max_pos = 0
+    cycles = 0
+    while banks not in visited_states:
+        visited_states.append(banks[:])
+        cycles += 1
+        for bank in banks:
+            if bank > max_blocks:
+                max_blocks = bank
+                max_pos = banks.index(bank)
+        banks[max_pos] = 0
+        distributed = 0
+        while distributed < max_blocks:
+            banks[(max_pos + distributed + 1) % num_banks] += 1
+            distributed += 1
+        max_blocks = 0
+    if puzzle_no == 1:
+        return cycles
+    else:
+        return len(visited_states) - visited_states.index(banks)
+
 
 #
 # HELPER FUNCTIONS
@@ -460,6 +545,7 @@ def aoc(day = 0, puzzle = 0):
          3: {1: day03_1, 2: day03_2},
          4: {1: day04_1, 2: day04_2},
          5: {1: day05_1, 2: day05_2},
+         6: {1: day06_1, 2: day06_2},
     }
     
     def print_result(day, puzzle):
@@ -494,3 +580,5 @@ def input_for_day(day):
         return input.split('\n')
     elif day == 5:
         return map(lambda i: int(i), input.split('\n'))
+    elif day == 6:
+        return map(lambda i: int(i), input.split('\t'))
