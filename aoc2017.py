@@ -345,11 +345,11 @@ def day04_2(test_input = 0):
     return day04_shared(passphrases, 2)
 
 # Day 04 shared code
-def day04_shared(passphrases, puzzle_no):
+def day04_shared(passphrases, puzzle):
     valid_passphrases = 0
     for passphrase in passphrases:
         words = passphrase.split(' ')
-        if puzzle_no == 1:
+        if puzzle == 1:
             unique = set(words)
         else:
             unique = set(map(lambda word: ''.join(sorted(list(word))), words))
@@ -419,13 +419,13 @@ def day05_2(test_input = 0):
     return day05_shared(maze, 2)
 
 # Day 05 shared code
-def day05_shared(maze, puzzle_no):
+def day05_shared(maze, puzzle):
     steps = 0
     position = 0
     while position >= 0 and position < len(maze):
         last_position = position
         position += maze[position]
-        increment = 1 if puzzle_no == 1 or maze[last_position] < 3 else -1
+        increment = 1 if puzzle == 1 or maze[last_position] < 3 else -1
         maze[last_position] += increment
         steps += 1
     return steps    
@@ -502,7 +502,7 @@ def day06_2(test_input = 0):
     return day06_shared(banks, 2)
 
 # Day 06 shared code
-def day06_shared(banks, puzzle_no):
+def day06_shared(banks, puzzle):
     num_banks = len(banks)
     visited_states = []
     max_blocks = 0
@@ -516,17 +516,235 @@ def day06_shared(banks, puzzle_no):
                 max_blocks = bank
                 max_pos = banks.index(bank)
         banks[max_pos] = 0
-        distributed = 0
-        while distributed < max_blocks:
-            banks[(max_pos + distributed + 1) % num_banks] += 1
-            distributed += 1
+        for offset in range(1, max_blocks + 1):
+            banks[(max_pos + offset) % num_banks] += 1
         max_blocks = 0
-    if puzzle_no == 1:
+    if puzzle == 1:
         return cycles
     else:
         return len(visited_states) - visited_states.index(banks)
 
+'''
+--- Day 7: Recursive Circus ---
 
+Wandering further through the circuits of the computer, you come upon a
+tower of programs that have gotten themselves into a bit of trouble. A
+recursive algorithm has gotten out of hand, and now they're balanced
+precariously in a large tower.
+
+One program at the bottom supports the entire tower. It's holding a large
+disc, and on the disc are balanced several more sub-towers. At the bottom
+of these sub-towers, standing on the bottom disc, are other programs,
+each holding their own disc, and so on. At the very tops of these sub-
+sub-sub-...-towers, many programs stand simply keeping the disc below
+them balanced but with no disc of their own.
+
+You offer to help, but first you need to understand the structure of
+these towers. You ask each program to yell out their name, their weight,
+and (if they're holding a disc) the names of the programs immediately
+above them balancing on that disc. You write this information down (your
+puzzle input). Unfortunately, in their panic, they don't do this in an
+orderly fashion; by the time you're done, you're not sure which program
+gave which information.
+
+For example, if your list is the following:
+
+pbga (66)
+xhth (57)
+ebii (61)
+havc (66)
+ktlj (57)
+fwft (72) -> ktlj, cntj, xhth
+qoyq (66)
+padx (45) -> pbga, havc, qoyq
+tknk (41) -> ugml, padx, fwft
+jptl (61)
+ugml (68) -> gyxo, ebii, jptl
+gyxo (61)
+cntj (57)
+
+...then you would be able to recreate the structure of the towers that
+looks like this:
+
+                gyxo
+              /     
+         ugml - ebii
+       /      \     
+      |         jptl
+      |        
+      |         pbga
+     /        /
+tknk --- padx - havc
+     \        \
+      |         qoyq
+      |             
+      |         ktlj
+       \      /     
+         fwft - cntj
+              \     
+                xhth
+
+In this example, tknk is at the bottom of the tower (the bottom program),
+and is holding up ugml, padx, and fwft. Those programs are, in turn,
+holding up other programs; in this example, none of those programs are
+holding up any other programs, and are all the tops of their own towers.
+(The actual tower balancing in front of you is much larger.)
+
+Before you're ready to help them, you need to make sure your information
+is correct. What is the name of the bottom program?
+'''
+def day07_1(test_input = 0):
+    stacks = test_input if test_input else input_for_day(7)
+    callees = set()
+    for program in stacks:
+        stack = stacks[program]
+        if 'callees' in stack:
+            for callee in stack['callees']:
+                if callee in stacks:
+                    callees.add(callee)
+    return list(set(stacks.keys()).difference(callees))[0]
+    
+'''
+The programs explain the situation: they can't get down. Rather, they
+could get down, if they weren't expending all of their energy trying to
+keep the tower balanced. Apparently, one program has the wrong weight,
+and until it's fixed, they're stuck here.
+
+For any program holding a disc, each program standing on that disc forms
+a sub-tower. Each of those sub-towers are supposed to be the same weight,
+or the disc itself isn't balanced. The weight of a tower is the sum of
+the weights of the programs in that tower.
+
+In the example above, this means that for ugml's disc to be balanced,
+gyxo, ebii, and jptl must all have the same weight, and they do: 61.
+
+However, for tknk to be balanced, each of the programs standing on its
+disc and all programs above it must each match. This means that the
+following sums must all be the same:
+
+ugml + (gyxo + ebii + jptl) = 68 + (61 + 61 + 61) = 251
+padx + (pbga + havc + qoyq) = 45 + (66 + 66 + 66) = 243
+fwft + (ktlj + cntj + xhth) = 72 + (57 + 57 + 57) = 243
+
+As you can see, tknk's disc is unbalanced: ugml's stack is heavier than
+the other two. Even though the nodes above ugml are balanced, ugml itself
+is too heavy: it needs to be 8 units lighter for its stack to weigh 243
+and keep the towers balanced. If this change were made, its weight would
+be 60.
+
+Given that exactly one program is the wrong weight, what would its weight
+need to be to balance the entire tower?
+
+
+'''
+def day07_2(test_input = 0):
+    def compute_subtree_weights(node):
+        node['subtree_weight'] = node['weight']
+        for callee in node['callees']:
+            node['subtree_weight'] += compute_subtree_weights(stacks[callee])
+        return node['subtree_weight']
+            
+    def balance_subtree(node, parent_weight = None):
+        subtree = node
+        target_weight = 0
+        weights = []
+        for callee in node['callees']:
+            weights.append(stacks[callee]['subtree_weight'])
+        if len(weights) > 1:
+            target_weight = weights[0 if weights.count(weights[0]) > 1 else 1]
+            for callee in node['callees']:
+                if stacks[callee]['subtree_weight'] != target_weight:
+                    subtree = stacks[callee]
+        if subtree != node:
+            return balance_subtree(subtree, target_weight)
+        else:
+            return parent_weight - len(node['callees']) * target_weight
+
+    stacks = test_input if test_input else input_for_day(7)
+    root_node = stacks[day07_1()]
+    compute_subtree_weights(root_node)
+    return balance_subtree(root_node)
+
+'''
+--- Day 8: I Heard You Like Registers ---
+
+You receive a signal directly from the CPU. Because of your recent
+assistance with jump instructions, it would like you to compute the
+result of a series of unusual register instructions.
+
+Each instruction consists of several parts: the register to modify,
+whether to increase or decrease that register's value, the amount by
+which to increase or decrease it, and a condition. If the condition
+fails, skip the instruction without modifying the register. The registers
+all start at 0. The instructions look like this:
+
+b inc 5 if a > 1
+a inc 1 if b < 5
+c dec -10 if a >= 1
+c inc -20 if c == 10
+
+These instructions would be processed as follows:
+
+  - Because a starts at 0, it is not greater than 1, and so b is not
+    modified.
+  - a is increased by 1 (to 1) because b is less than 5 (it is 0).
+  - c is decreased by -10 (to 10) because a is now greater than or equal to
+    1 (it is 1).
+  - c is increased by -20 (to -10) because c is equal to 10.
+  
+After this process, the largest value in any register is 1.
+
+You might also encounter <= (less than or equal to) or != (not equal to).
+However, the CPU doesn't have the bandwidth to tell you what all the
+registers are named, and leaves that to you to determine.
+
+What is the largest value in any register after completing the
+instructions in your puzzle input?
+'''
+def day08_1(test_input = 0):
+    instructions = test_input if test_input else input_for_day(8)
+    return day08_shared(instructions, 1)
+
+'''
+To be safe, the CPU also needs to know the highest value held in any
+register during this process so that it can decide how much memory to
+allocate to these operations. For example, in the above instructions, the
+highest value ever held was 10 (in register c after the third instruction
+was evaluated).
+'''
+def day08_2(test_input = 0):
+    instructions = test_input if test_input else input_for_day(8)
+    return day08_shared(instructions, 2)
+
+# Day 08 shared code
+def day08_shared(instructions, puzzle):
+    def eval_cond(c_reg, c_op, c_val):
+        if c_op == '==':
+            return c_reg_val == c_val
+        elif c_op == '!=':
+            return c_reg_val != c_val
+        elif c_op == '>=':
+            return c_reg_val >= c_val
+        elif c_op == '>':
+            return c_reg_val > c_val
+        elif c_op == '<=':
+            return c_reg_val <= c_val
+        elif c_op == '<':
+            return c_reg_val < c_val
+
+    registers = {}
+    max_value = 0
+    for instruction in instructions:
+        (t_reg, t_op, t_val, _, c_reg, c_op, c_val) = instruction.split(' ')
+        c_reg_val = int(registers[c_reg]) if c_reg in registers else 0
+        t_reg_val = int(registers[t_reg]) if t_reg in registers else 0
+        if eval_cond(c_reg, c_op, int(c_val)):
+            t_reg_val += int(t_val) if t_op == 'inc' else -int(t_val)
+            registers[t_reg] = t_reg_val
+            if puzzle == 2 and t_reg_val > max_value:
+                max_value = t_reg_val
+    return max(registers.values()) if puzzle == 1 else max_value
+        
 #
 # HELPER FUNCTIONS
 #
@@ -546,6 +764,8 @@ def aoc(day = 0, puzzle = 0):
          4: {1: day04_1, 2: day04_2},
          5: {1: day05_1, 2: day05_2},
          6: {1: day06_1, 2: day06_2},
+         7: {1: day07_1, 2: day07_2},
+         8: {1: day08_1, 2: day08_2},
     }
     
     def print_result(day, puzzle):
@@ -582,3 +802,21 @@ def input_for_day(day):
         return map(lambda i: int(i), input.split('\n'))
     elif day == 6:
         return map(lambda i: int(i), input.split('\t'))
+    elif day == 7:
+        lines = input.split('\n')
+        stacks = {}
+        for line in lines:
+            parts = line.split(') ->')
+            (name, weight) = parts[0].split(' (')
+            stacks[name] = {
+                'weight': int(weight),
+                'callees': parts[1][1:].split(', ')
+            } if len(parts) > 1 else {
+                'weight': int(weight[:-1]),
+                'callees': []
+            }
+        return stacks
+    elif day == 8:
+        return input.split('\n')
+        
+        
