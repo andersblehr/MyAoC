@@ -42,7 +42,7 @@ For example:
   - 1234 produces 0 because no digit matches the next.
   - 91212129 produces 9 because the only digit that matches the next one
     is the last digit, 9.
-    
+
 What is the solution to your captcha?
 '''
 def day01_1():
@@ -73,7 +73,7 @@ For example:
     digit has a match.
   - 123123 produces 12.
   - 12131415 produces 4.
-  
+
 What is the solution to your new captcha?
 '''
 def day01_2():
@@ -196,17 +196,17 @@ in your puzzle input all the way to the access port?
 '''
 
 # SOLUTION NOTES
-# 
+#
 # The algorithm utilises the following repeating pattern to achieve
 # O(sqrt(N)) complexity:
-# 
+#
 # NE  3   13  31  57 ...
 # NW  5   17  37  65
 # SW  7   21  43  73
 # SE  10  26  50  82
-# 
+#
 # If you want exact (x, y) coordinates for where the input ends up:
-# 
+#
 #     quadrants = ['NE', 'NW', 'SW', 'SE']
 #     quadrant = quadrants[pivots % 4]
 #     quadrant_distance = pivots / 4 + 1
@@ -223,11 +223,11 @@ in your puzzle input all the way to the access port?
 #         x = (quadrant_distance + 1) - (quadrant_value - input)
 #         y = -quadrant_distance
 #     return abs(x) + abs(y)
-# 	
+#
 # The last if statement before the return statement is pure black magic
 # (or not).
 
-def day03_1(test_input = None):
+def day03_1(test_input=None):
     input = test_input if test_input else input_for_day(3)
     quadrant_value = 3
     quadrant_size = 2
@@ -271,9 +271,9 @@ few squares would receive the following values:
 
 What is the first value written that is larger than your puzzle input?
 '''
-def day03_2(test_input = None):
+def day03_2(test_input=None):
     input = test_input if test_input else input_for_day(3)
-    mem = { (0, 0): 1 }
+    mem = {(0, 0): 1}
     position = (0, 0)
     directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
     direction = directions[0]
@@ -298,7 +298,7 @@ def day03_2(test_input = None):
                 if pivots % 2 == 0:
                     direction_steps_max += 1
     return value
-    
+
 '''
 --- Day 4: High-Entropy Passphrases ---
 
@@ -313,11 +313,11 @@ For example:
   - aa bb cc dd ee is valid.
   - aa bb cc dd aa is not valid - the word aa appears more than once.
   - aa bb cc dd aaa is valid - aa and aaa count as different words.
-  
+
 The system's full passphrase list is available as your puzzle input. How
 many passphrases are valid?
 '''
-def day04_1(test_input = None):
+def day04_1(test_input=None):
     passphrases = test_input if test_input else input_for_day(4)
     return day04_shared(passphrases, 1)
 
@@ -340,7 +340,7 @@ For example:
 
 Under this new system policy, how many passphrases are valid?
 '''
-def day04_2(test_input = None):
+def day04_2(test_input=None):
     passphrases = test_input if test_input else input_for_day(4)
     return day04_shared(passphrases, 2)
 
@@ -395,12 +395,12 @@ following steps would be taken before an exit is found:
   -  2  4  0  1 (-3) - jump all the way to the end; leave a 4 behind.
   -  2 (4) 0  1  -2  - go back to where we just were; increment -3 to -2.
   -  2  5  0  1  -2  - jump 4 steps forward, escaping the maze.
-  
+
 In this example, the exit is reached in 5 steps.
 
 How many steps does it take to reach the exit?
 '''
-def day05_1(test_input = None):
+def day05_1(test_input=None):
     maze = test_input if test_input else input_for_day(5)
     return day05_shared(maze, 1)
 
@@ -414,7 +414,7 @@ and the offset values after finding the exit are left as 2 3 2 3 -1.
 
 How many steps does it now take to reach the exit?
 '''
-def day05_2(test_input = None):
+def day05_2(test_input=None):
     maze = test_input if test_input else input_for_day(5)
     return day05_shared(maze, 2)
 
@@ -428,7 +428,7 @@ def day05_shared(maze, puzzle):
         increment = 1 if puzzle == 1 or maze[last_position] < 3 else -1
         maze[last_position] += increment
         steps += 1
-    return steps    
+    return steps
 
 '''
 --- Day 6: Memory Reallocation ---
@@ -481,7 +481,7 @@ Given the initial block counts in your puzzle input, how many
 redistribution cycles must be completed before a configuration is
 produced that has been seen before?
 '''
-def day06_1(test_input = None):
+def day06_1(test_input=None):
     banks = test_input if test_input else input_for_day(6)
     return day06_shared(banks, 1)
 
@@ -497,7 +497,7 @@ answer in that example would be 4.
 How many cycles are in the infinite loop that arises from the
 configuration in your puzzle input?
 '''
-def day06_2(test_input = None):
+def day06_2(test_input=None):
     banks = test_input if test_input else input_for_day(6)
     return day06_shared(banks, 2)
 
@@ -567,21 +567,21 @@ cntj (57)
 looks like this:
 
                 gyxo
-              /     
+              /
          ugml - ebii
-       /      \     
+       /      \
       |         jptl
-      |        
+      |
       |         pbga
      /        /
 tknk --- padx - havc
      \        \
       |         qoyq
-      |             
+      |
       |         ktlj
-       \      /     
+       \      /
          fwft - cntj
-              \     
+              \
                 xhth
 
 In this example, tknk is at the bottom of the tower (the bottom program),
@@ -593,7 +593,7 @@ holding up any other programs, and are all the tops of their own towers.
 Before you're ready to help them, you need to make sure your information
 is correct. What is the name of the bottom program?
 '''
-def day07_1(test_input = None):
+def day07_1(test_input=None):
     stacks = test_input if test_input else input_for_day(7)
     callees = set()
     for program in stacks:
@@ -602,7 +602,7 @@ def day07_1(test_input = None):
             if callee in stacks:
                 callees.add(callee)
     return list(set(stacks.keys()).difference(callees))[0]
-    
+
 '''
 The programs explain the situation: they can't get down. Rather, they
 could get down, if they weren't expending all of their energy trying to
@@ -633,17 +633,15 @@ be 60.
 
 Given that exactly one program is the wrong weight, what would its weight
 need to be to balance the entire tower?
-
-
 '''
-def day07_2(test_input = None):
+def day07_2(test_input=None):
     def compute_subtree_weights(node):
         node['subtree_weight'] = node['weight']
         for callee in node['callees']:
             node['subtree_weight'] += compute_subtree_weights(stacks[callee])
         return node['subtree_weight']
-            
-    def balance_subtree(node, parent_weight = None):
+
+    def balance_subtree(node, parent_weight=None):
         subtree = node
         target_weight = 0
         weights = [stacks[callee]['subtree_weight'] for callee in node['callees']]
@@ -688,7 +686,7 @@ These instructions would be processed as follows:
   - c is decreased by -10 (to 10) because a is now greater than or equal to
     1 (it is 1).
   - c is increased by -20 (to -10) because c is equal to 10.
-  
+
 After this process, the largest value in any register is 1.
 
 You might also encounter <= (less than or equal to) or != (not equal to).
@@ -698,7 +696,7 @@ registers are named, and leaves that to you to determine.
 What is the largest value in any register after completing the
 instructions in your puzzle input?
 '''
-def day08_1(test_input = None):
+def day08_1(test_input=None):
     instructions = test_input if test_input else input_for_day(8)
     return day08_shared(instructions, 1)
 
@@ -709,7 +707,7 @@ allocate to these operations. For example, in the above instructions, the
 highest value ever held was 10 (in register c after the third instruction
 was evaluated).
 '''
-def day08_2(test_input = None):
+def day08_2(test_input=None):
     instructions = test_input if test_input else input_for_day(8)
     return day08_shared(instructions, 2)
 
@@ -780,7 +778,7 @@ Here are some self-contained pieces of garbage:
     the garbage.
   - <!!!>>, because the second ! and the first > are canceled.
   - <{o"i!a,<{i<a>, which ends at the first >.
-  
+
 Here are some examples of whole streams and the number of groups they
 contain:
 
@@ -793,7 +791,7 @@ contain:
   - {{<a>},{<a>},{<a>},{<a>}}, 5 groups.
   - {{<!>},{<!>},{<!>},{<a>}}, 2 groups (since all but the last > are
     canceled).
-    
+
 Your goal is to find the total score for all groups in your input. Each
 group is assigned a score which is one more than the score of the group
 that immediately contains it. (The outermost group gets a score of 1.)
@@ -809,10 +807,10 @@ that immediately contains it. (The outermost group gets a score of 1.)
 
 What is the total score for all groups in your input?
 '''
-def day09_1(test_input = None):
+def day09_1(test_input=None):
     stream = test_input if test_input else input_for_day(9)
     return day09_shared(stream, 1)
-    
+
 '''
 Now, you're ready to remove the garbage.
 
@@ -831,7 +829,7 @@ any canceled characters or the ! doing the canceling.
 How many non-canceled characters are within the garbage in your puzzle
 input?
 '''
-def day09_2(test_input = None):
+def day09_2(test_input=None):
     stream = test_input if test_input else input_for_day(9)
     return day09_shared(stream, 2)
 
@@ -860,49 +858,214 @@ def day09_shared(stream, puzzle):
         elif character == '<':
             in_garbage = True
     return score if puzzle == 1 else garbage_count
-        
-
-#
-# HELPER FUNCTIONS
-#
 
 '''
-Print out results for:
+--- Day 10: Knot Hash ---
 
-  - an individual puzzle: day > 0; puzzle > 0
-  - an indivitual day: day > 0
-  - all puzzles so far: no parameters
+You come across some programs that are trying to implement a software
+emulation of a hash based on knot-tying. The hash these programs are
+implementing isn't very strong, but you decide to help them anyway. You
+make a mental note to remind the Elves later not to invent their own
+cryptographic functions.
+
+This hash function simulates tying a knot in a circle of string with 256
+marks on it. Based on the input to be hashed, the function repeatedly
+selects a span of string, brings the ends together, and gives the span a
+half-twist to reverse the order of the marks within it. After doing this
+many times, the order of the marks is used to build the resulting hash.
+
+  4--5   pinch   4  5           4   1
+ /    \  5,0,1  / \/ \  twist  / \ / \
+3      0  -->  3      0  -->  3   X   0
+ \    /         \ /\ /         \ / \ /
+  2--1           2  1           2   5
+
+To achieve this, begin with a list of numbers from 0 to 255, a current
+position which begins at 0 (the first element in the list), a skip size
+(which starts at 0), and a sequence of lengths (your puzzle input). Then,
+for each length:
+
+  - Reverse the order of that length of elements in the list, starting
+    with the element at the current position.
+  - Move the current position forward by that length plus the skip size.
+  - Increase the skip size by one.
+
+The list is circular; if the current position and the length try to
+reverse elements beyond the end of the list, the operation reverses using
+as many extra elements as it needs from the front of the list. If the
+current position moves past the end of the list, it wraps around to the
+front. Lengths larger than the size of the list are invalid.
+
+Here's an example using a smaller list:
+
+Suppose we instead only had a circular list containing five elements,
+0, 1, 2, 3, 4, and were given input lengths of 3, 4, 1, 5.
+
+  - The list begins as [0] 1 2 3 4 (where square brackets indicate the
+    current position).
+  - The first length, 3, selects ([0] 1 2) 3 4 (where parentheses
+    indicate the sublist to be reversed).
+  - After reversing that section (0 1 2 into 2 1 0), we get ([2] 1 0) 3 4
+    .
+  - Then, the current position moves forward by the length, 3, plus the
+    skip size, 0: 2 1 0 [3] 4. Finally, the skip size increases to 1.
+
+  - The second length, 4, selects a section which wraps: 2 1) 0 ([3] 4.
+  - The sublist 3 4 2 1 is reversed to form 1 2 4 3: 4 3) 0 ([1] 2.
+  - The current position moves forward by the length plus the skip size,
+    a total of 5, causing it not to move because it wraps around:
+    4 3 0 [1] 2. The skip size increases to 2.
+
+  - The third length, 1, selects a sublist of a single element, and so
+    reversing it has no effect.
+  - The current position moves forward by the length (1) plus the skip
+    size (2): 4 [3] 0 1 2. The skip size increases to 3.
+
+  - The fourth length, 5, selects every element starting with the second:
+    4) ([3] 0 1 2. Reversing this sublist (3 0 1 2 4 into 4 2 1 0 3)
+    produces: 3) ([4] 2 1 0.
+  - Finally, the current position moves forward by 8: 3 4 2 1 [0]. The
+    skip size increases to 4.
+
+In this example, the first two numbers in the list end up being 3 and 4;
+to check the process, you can multiply them together to produce 12.
+
+However, you should instead use the standard list size of 256 (with
+values 0 to 255) and the sequence of lengths in your puzzle input. Once
+this process is complete, what is the result of multiplying the first two
+numbers in the list?
 '''
-def aoc(day = None, puzzle = None):
-    funcs = {
-         1: {1: day01_1, 2: day01_2},
-         2: {1: day02_1, 2: day02_2},
-         3: {1: day03_1, 2: day03_2},
-         4: {1: day04_1, 2: day04_2},
-         5: {1: day05_1, 2: day05_2},
-         6: {1: day06_1, 2: day06_2},
-         7: {1: day07_1, 2: day07_2},
-         8: {1: day08_1, 2: day08_2},
-         9: {1: day09_1, 2: day09_2},
-    }
-    
-    def print_result(day, puzzle):
-        print("Day %02d #%d: %s" % (day, puzzle, funcs[day][puzzle]()))
-    
-    if day and puzzle:
-        print_result(day, puzzle)
-    elif day:
-        for puzzle in funcs[day].keys():
-            print_result(day, puzzle)
-    else:
-        for day in funcs.keys():
-            for puzzle in funcs[day].keys():
-                print_result(day, puzzle)
+def day10_1(test_input=None):
+    lengths = test_input if test_input else input_for_day(10)
+    list = [i for i in range(5 if test_input else 256)]
+    list = compute_sparse_hash(lengths, 1, list)
+    return list[0] * list[1]
+
+'''
+The logic you've constructed forms a single round of the Knot Hash
+algorithm; running the full thing requires many of these rounds. Some
+input and output processing is also required.
+
+First, from now on, your input should be taken not as a list of numbers,
+but as a string of bytes instead. Unless otherwise specified, convert
+characters to bytes using their ASCII codes. This will allow you to
+handle arbitrary ASCII strings, and it also ensures that your input
+lengths are never larger than 255. For example, if you are given 1,2,3,
+you should convert it to the ASCII codes for each character:
+49,44,50,44,51.
+
+Once you have determined the sequence of lengths to use, add the
+following lengths to the end of the sequence: 17, 31, 73, 47, 23. For
+example, if you are given 1,2,3, your final sequence of lengths should be
+49,44,50,44,51,17,31,73,47,23 (the ASCII codes from the input string
+combined with the standard length suffix values).
+
+Second, instead of merely running one round like you did above, run a
+total of 64 rounds, using the same length sequence in each round. The
+current position and skip size should be preserved between rounds. For
+example, if the previous example was your first round, you would start
+your second round with the same length sequence (
+3, 4, 1, 5, 17, 31, 73, 47, 23, now assuming they came from ASCII codes
+and include the suffix), but start with the previous round's current
+position (4) and skip size (4).
+
+Once the rounds are complete, you will be left with the numbers from 0 to
+255 in some order, called the sparse hash. Your next task is to reduce
+these to a list of only 16 numbers called the dense hash. To do this, use
+numeric bitwise XOR to combine each consecutive block of 16 numbers in
+the sparse hash (there are 16 such blocks in a list of 256 numbers). So,
+the first element in the dense hash is the first sixteen elements of the
+sparse hash XOR'd together, the second element in the dense hash is the
+second sixteen elements of the sparse hash XOR'd together, etc.
+
+For example, if the first sixteen elements of your sparse hash are as
+shown below, and the XOR operator is ^, you would calculate the first
+output number like this:
+
+65 ^ 27 ^ 9 ^ 1 ^ 4 ^ 3 ^ 40 ^ 50 ^ 91 ^ 7 ^ 6 ^ 0 ^ 2 ^ 5 ^ 68 ^ 22 = 64
+
+Perform this operation on each of the sixteen blocks of sixteen numbers
+in your sparse hash to determine the sixteen numbers in your dense hash.
+
+Finally, the standard way to represent a Knot Hash is as a single
+hexadecimal string; the final output is the dense hash in hexadecimal
+notation. Because each number in your dense hash will be between 0 and
+255 (inclusive), always represent each number as two hexadecimal digits
+(including a leading zero as necessary). So, if your first three numbers
+are 64, 7, 255, they correspond to the hexadecimal numbers 40, 07, ff,
+and so the first six characters of the hash would be 4007ff. Because
+every Knot Hash is sixteen such numbers, the hexadecimal representation
+is always 32 hexadecimal digits (0-f) long.
+
+Here are some example hashes:
+
+  - The empty string becomes a2582a3a0e66e6e86e3812dcb672a272.
+  - AoC 2017 becomes 33efeb34ea91902bb2f59c9920caa6cd.
+  - 1,2,3 becomes 3efbe78a8d82f29979031a4aa0b16a9d.
+  - 1,2,4 becomes 63960835bcdc130f0b66d7ff4f6a5a8e.
+
+Treating your puzzle input as a string of ASCII characters, what is the
+Knot Hash of your puzzle input? Ignore any leading or trailing
+whitespace you might encounter.
+'''
+def day10_2(test_input=None):
+    input = test_input if test_input else input_for_day(10, 2)
+    lengths = map(lambda character: ord(character), input)
+    lengths += [17, 31, 73, 47, 23]
+    sparse_hash = compute_sparse_hash(lengths, 64)
+    dense_hash = []
+    xor_result = 0
+    for i in range(256):
+        if i > 0 and i % 16 == 0:
+            dense_hash.append(xor_result)
+            xor_result = 0
+        xor_result ^= sparse_hash[i]
+    dense_hash.append(xor_result)
+    knot_hash = ''
+    for hash_element in dense_hash:
+        knot_hash += format(hash_element, '02x')
+    return knot_hash
+
+# Day 10 shared code
+def compute_sparse_hash(lengths, iterations, list=None):
+    list = list if list else [i for i in range(256)]
+    position = 0
+    skip = 0
+    for _ in range(iterations):
+        for length in lengths:
+            if length > 0:
+                end = (position + length) % len(list)
+                sublist = list[position:end if end > position else len(list)] \
+                    + ([] if end > position else list[:end])
+                reversed_sublist = sublist[::-1]
+                list[position:end if end > position else len(list)] \
+                    = reversed_sublist[:length if end > position else length - end]
+                if end <= position:
+                    list[:end] = reversed_sublist[length - end:]
+            position = (position + length + skip) % len(list)
+            skip += 1
+    return list
+
+'''
+
+'''
+def day11_1(test_input=None):
+    input = test_input if test_input else input_for_day(11)
+
+'''
+
+'''
+def day11_2(test_input=None):
+    input = test_input if test_input else input_for_day(11)
+
+#
+# ADDITIONAL FUNCTIONS
+#
 
 '''
 Load input for given day from file and prepare for processing
 '''
-def input_for_day(day):
+def input_for_day(day, puzzle=1):
     input = open('input2017/day%02d.txt' % day, 'r').read()
     if day == 1:
         return input
@@ -938,5 +1101,45 @@ def input_for_day(day):
         return input.split('\n')
     elif day == 9:
         return input
-        
-        
+    elif day == 10:
+        if puzzle == 1:
+            return map(lambda length: int(length), input.split(','))
+        else:
+            return input
+    elif day == 11:
+        return input
+
+'''
+Print out results for:
+
+  - an individual puzzle: day > 0; puzzle > 0
+  - an indivitual day: day > 0
+  - all puzzles so far: no parameters
+'''
+def aoc(day=None, puzzle=None):
+    funcs = {
+        1: {1: day01_1, 2: day01_2},
+        2: {1: day02_1, 2: day02_2},
+        3: {1: day03_1, 2: day03_2},
+        4: {1: day04_1, 2: day04_2},
+        5: {1: day05_1, 2: day05_2},
+        6: {1: day06_1, 2: day06_2},
+        7: {1: day07_1, 2: day07_2},
+        8: {1: day08_1, 2: day08_2},
+        9: {1: day09_1, 2: day09_2},
+        10: {1: day10_1, 2: day10_2},
+        11: {1: day11_1, 2: day11_2},
+    }
+
+    def print_result(day, puzzle):
+        print("Day %02d #%d: %s" % (day, puzzle, funcs[day][puzzle]()))
+
+    if day and puzzle:
+        print_result(day, puzzle)
+    elif day:
+        for puzzle in funcs[day].keys():
+            print_result(day, puzzle)
+    else:
+        for day in funcs.keys():
+            for puzzle in funcs[day].keys():
+                print_result(day, puzzle)
