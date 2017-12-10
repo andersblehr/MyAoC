@@ -227,7 +227,7 @@ in your puzzle input all the way to the access port?
 # The last if statement before the return statement is pure black magic
 # (or not).
 
-def day03_1(test_input = 0):
+def day03_1(test_input = None):
     input = test_input if test_input else input_for_day(3)
     quadrant_value = 3
     quadrant_size = 2
@@ -271,7 +271,7 @@ few squares would receive the following values:
 
 What is the first value written that is larger than your puzzle input?
 '''
-def day03_2(test_input = 0):
+def day03_2(test_input = None):
     input = test_input if test_input else input_for_day(3)
     mem = { (0, 0): 1 }
     position = (0, 0)
@@ -317,7 +317,7 @@ For example:
 The system's full passphrase list is available as your puzzle input. How
 many passphrases are valid?
 '''
-def day04_1(test_input = 0):
+def day04_1(test_input = None):
     passphrases = test_input if test_input else input_for_day(4)
     return day04_shared(passphrases, 1)
 
@@ -340,7 +340,7 @@ For example:
 
 Under this new system policy, how many passphrases are valid?
 '''
-def day04_2(test_input = 0):
+def day04_2(test_input = None):
     passphrases = test_input if test_input else input_for_day(4)
     return day04_shared(passphrases, 2)
 
@@ -400,7 +400,7 @@ In this example, the exit is reached in 5 steps.
 
 How many steps does it take to reach the exit?
 '''
-def day05_1(test_input = 0):
+def day05_1(test_input = None):
     maze = test_input if test_input else input_for_day(5)
     return day05_shared(maze, 1)
 
@@ -414,7 +414,7 @@ and the offset values after finding the exit are left as 2 3 2 3 -1.
 
 How many steps does it now take to reach the exit?
 '''
-def day05_2(test_input = 0):
+def day05_2(test_input = None):
     maze = test_input if test_input else input_for_day(5)
     return day05_shared(maze, 2)
 
@@ -481,7 +481,7 @@ Given the initial block counts in your puzzle input, how many
 redistribution cycles must be completed before a configuration is
 produced that has been seen before?
 '''
-def day06_1(test_input = 0):
+def day06_1(test_input = None):
     banks = test_input if test_input else input_for_day(6)
     return day06_shared(banks, 1)
 
@@ -497,7 +497,7 @@ answer in that example would be 4.
 How many cycles are in the infinite loop that arises from the
 configuration in your puzzle input?
 '''
-def day06_2(test_input = 0):
+def day06_2(test_input = None):
     banks = test_input if test_input else input_for_day(6)
     return day06_shared(banks, 2)
 
@@ -593,15 +593,14 @@ holding up any other programs, and are all the tops of their own towers.
 Before you're ready to help them, you need to make sure your information
 is correct. What is the name of the bottom program?
 '''
-def day07_1(test_input = 0):
+def day07_1(test_input = None):
     stacks = test_input if test_input else input_for_day(7)
     callees = set()
     for program in stacks:
         stack = stacks[program]
-        if 'callees' in stack:
-            for callee in stack['callees']:
-                if callee in stacks:
-                    callees.add(callee)
+        for callee in stack['callees']:
+            if callee in stacks:
+                callees.add(callee)
     return list(set(stacks.keys()).difference(callees))[0]
     
 '''
@@ -637,7 +636,7 @@ need to be to balance the entire tower?
 
 
 '''
-def day07_2(test_input = 0):
+def day07_2(test_input = None):
     def compute_subtree_weights(node):
         node['subtree_weight'] = node['weight']
         for callee in node['callees']:
@@ -647,9 +646,7 @@ def day07_2(test_input = 0):
     def balance_subtree(node, parent_weight = None):
         subtree = node
         target_weight = 0
-        weights = []
-        for callee in node['callees']:
-            weights.append(stacks[callee]['subtree_weight'])
+        weights = [stacks[callee]['subtree_weight'] for callee in node['callees']]
         if len(weights) > 1:
             target_weight = weights[0 if weights.count(weights[0]) > 1 else 1]
             for callee in node['callees']:
@@ -701,7 +698,7 @@ registers are named, and leaves that to you to determine.
 What is the largest value in any register after completing the
 instructions in your puzzle input?
 '''
-def day08_1(test_input = 0):
+def day08_1(test_input = None):
     instructions = test_input if test_input else input_for_day(8)
     return day08_shared(instructions, 1)
 
@@ -712,7 +709,7 @@ allocate to these operations. For example, in the above instructions, the
 highest value ever held was 10 (in register c after the third instruction
 was evaluated).
 '''
-def day08_2(test_input = 0):
+def day08_2(test_input = None):
     instructions = test_input if test_input else input_for_day(8)
     return day08_shared(instructions, 2)
 
@@ -744,7 +741,127 @@ def day08_shared(instructions, puzzle):
             if puzzle == 2 and t_reg_val > max_value:
                 max_value = t_reg_val
     return max(registers.values()) if puzzle == 1 else max_value
+
+'''
+--- Day 9: Stream Processing ---
+
+A large stream blocks your path. According to the locals, it's not safe
+to cross the stream at the moment because it's full of garbage. You look
+down at the stream; rather than water, you discover that it's a stream of
+characters.
+
+You sit for a while and record part of the stream (your puzzle input).
+The characters represent groups - sequences that begin with { and end
+with }. Within a group, there are zero or more other things, separated by
+commas: either another group or garbage. Since groups can contain other
+groups, a } only closes the most-recently-opened unclosed group - that
+is, they are nestable. Your puzzle input represents a single, large group
+which itself contains many smaller ones.
+
+Sometimes, instead of a group, you will find garbage. Garbage begins with
+< and ends with >. Between those angle brackets, almost any character can
+appear, including { and }. Within garbage, < has no special meaning.
+
+In a futile attempt to clean up the garbage, some program has canceled
+some of the characters within it using !: inside garbage, any character
+that comes after ! should be ignored, including <, >, and even another !.
+
+You don't see any characters that deviate from these rules. Outside
+garbage, you only find well-formed groups, and garbage always terminates
+according to the rules above.
+
+Here are some self-contained pieces of garbage:
+
+  - <>, empty garbage.
+  - <random characters>, garbage containing random characters.
+  - <<<<>, because the extra < are ignored.
+  - <{!>}>, because the first > is canceled.
+  - <!!>, because the second ! is canceled, allowing the > to terminate
+    the garbage.
+  - <!!!>>, because the second ! and the first > are canceled.
+  - <{o"i!a,<{i<a>, which ends at the first >.
+  
+Here are some examples of whole streams and the number of groups they
+contain:
+
+  - {}, 1 group.
+  - {{{}}}, 3 groups.
+  - {{},{}}, also 3 groups.
+  - {{{},{},{{}}}}, 6 groups.
+  - {<{},{},{{}}>}, 1 group (which itself contains garbage).
+  - {<a>,<a>,<a>,<a>}, 1 group.
+  - {{<a>},{<a>},{<a>},{<a>}}, 5 groups.
+  - {{<!>},{<!>},{<!>},{<a>}}, 2 groups (since all but the last > are
+    canceled).
+    
+Your goal is to find the total score for all groups in your input. Each
+group is assigned a score which is one more than the score of the group
+that immediately contains it. (The outermost group gets a score of 1.)
+
+  - {}, score of 1.
+  - {{{}}}, score of 1 + 2 + 3 = 6.
+  - {{},{}}, score of 1 + 2 + 2 = 5.
+  - {{{},{},{{}}}}, score of 1 + 2 + 3 + 3 + 3 + 4 = 16.
+  - {<a>,<a>,<a>,<a>}, score of 1.
+  - {{<ab>},{<ab>},{<ab>},{<ab>}}, score of 1 + 2 + 2 + 2 + 2 = 9.
+  - {{<!!>},{<!!>},{<!!>},{<!!>}}, score of 1 + 2 + 2 + 2 + 2 = 9.
+  - {{<a!>},{<a!>},{<a!>},{<ab>}}, score of 1 + 2 = 3.
+
+What is the total score for all groups in your input?
+'''
+def day09_1(test_input = None):
+    stream = test_input if test_input else input_for_day(9)
+    return day09_shared(stream, 1)
+    
+'''
+Now, you're ready to remove the garbage.
+
+To prove you've removed it, you need to count all of the characters
+within the garbage. The leading and trailing < and > don't count, nor do
+any canceled characters or the ! doing the canceling.
+
+  - <>, 0 characters.
+  - <random characters>, 17 characters.
+  - <<<<>, 3 characters.
+  - <{!>}>, 2 characters.
+  - <!!>, 0 characters.
+  - <!!!>>, 0 characters.
+  - <{o"i!a,<{i<a>, 10 characters.
+
+How many non-canceled characters are within the garbage in your puzzle
+input?
+'''
+def day09_2(test_input = None):
+    stream = test_input if test_input else input_for_day(9)
+    return day09_shared(stream, 2)
+
+# Day 09 shared code
+def day09_shared(stream, puzzle):
+    depth = 0
+    score = 0
+    garbage_count = 0
+    cancel_next = False
+    in_garbage = False
+    for character in stream:
+        if cancel_next:
+            cancel_next = False
+        elif character == '!':
+            cancel_next = True
+        elif in_garbage:
+            if character == '>':
+                in_garbage = False
+            else:
+                garbage_count += 1
+        elif character == '{':
+            depth += 1
+            score += depth
+        elif character == '}':
+            depth -= 1
+        elif character == '<':
+            in_garbage = True
+    return score if puzzle == 1 else garbage_count
         
+
 #
 # HELPER FUNCTIONS
 #
@@ -756,7 +873,7 @@ Print out results for:
   - an indivitual day: day > 0
   - all puzzles so far: no parameters
 '''
-def aoc(day = 0, puzzle = 0):
+def aoc(day = None, puzzle = None):
     funcs = {
          1: {1: day01_1, 2: day01_2},
          2: {1: day02_1, 2: day02_2},
@@ -766,6 +883,7 @@ def aoc(day = 0, puzzle = 0):
          6: {1: day06_1, 2: day06_2},
          7: {1: day07_1, 2: day07_2},
          8: {1: day08_1, 2: day08_2},
+         9: {1: day09_1, 2: day09_2},
     }
     
     def print_result(day, puzzle):
@@ -818,5 +936,7 @@ def input_for_day(day):
         return stacks
     elif day == 8:
         return input.split('\n')
+    elif day == 9:
+        return input
         
         
