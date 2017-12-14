@@ -1124,6 +1124,605 @@ def compute_distance(position):
     distance += max(y_pos, x_pos)
     return distance
 
+'''
+--- Day 12: Digital Plumber ---
+
+Walking along the memory banks of the stream, you find a small village
+that is experiencing a little confusion: some programs can't communicate
+with each other.
+
+Programs in this village communicate using a fixed system of pipes.
+Messages are passed between programs using these pipes, but most programs
+aren't connected to each other directly. Instead, programs pass messages
+between each other until the message reaches the intended recipient.
+
+For some reason, though, some of these messages aren't ever reaching
+their intended recipient, and the programs suspect that some pipes are
+missing. They would like you to investigate.
+
+You walk through the village and record the ID of each program and the
+IDs with which it can communicate directly (your puzzle input). Each
+program has one or more programs with which it can communicate, and these
+pipes are bidirectional; if 8 says it can communicate with 11, then 11
+will say it can communicate with 8.
+
+You need to figure out how many programs are in the group that contains
+program ID 0.
+
+For example, suppose you go door-to-door like a travelling salesman and
+record the following list:
+
+0 <-> 2
+1 <-> 1
+2 <-> 0, 3, 4
+3 <-> 2, 4
+4 <-> 2, 3, 6
+5 <-> 6
+6 <-> 4, 5
+
+In this example, the following programs are in the group that contains
+program ID 0:
+
+  - Program 0 by definition.
+  - Program 2, directly connected to program 0.
+  - Program 3 via program 2.
+  - Program 4 via program 2.
+  - Program 5 via programs 6, then 4, then 2.
+  - Program 6 via programs 4, then 2.
+
+Therefore, a total of 6 programs are in this group; all but program 1,
+which has a pipe that connects it to itself.
+
+How many programs are in the group that contains program ID 0?
+'''
+def day12_1(test_input=None):
+    links = test_input if test_input else input_for_day(12)
+    group_with_0 = set('0')
+    group_size = 0
+    iterations = 0
+    while len(group_with_0) > group_size:
+        group_size = len(group_with_0)
+        for program in links.keys():
+            if program not in group_with_0:
+                for linked_program in links[program]:
+                    iterations += 1
+                    if linked_program in group_with_0:
+                        group_with_0.add(program)
+    print("Iterations: %d" % iterations)
+    return len(group_with_0)
+
+def day12_1_recursive(test_input=None):
+    def linked_to_0(program):
+        if program in group_0:
+            return True
+        else:
+            linked = False
+            for linked_program in links[program]:
+                day12_1_recursive.iterations += 1
+                if linked_program not in visiting:
+                    visiting.add(linked_program)
+                    linked = linked or linked_to_0(linked_program)
+                    visiting.remove(linked_program)
+            if linked:
+                group_0.add(program)
+            return linked
+
+    links = test_input if test_input else input_for_day(12)
+    group_0 = set('0')
+    visiting = set()
+    day12_1_recursive.iterations = 0
+    for program in links.keys():
+        linked_to_0(program)
+    print("Iterations: %d" % day12_1_recursive.iterations)
+    return len(group_0)
+
+'''
+There are more programs than just the ones in the group containing
+program ID 0. The rest of them have no way of reaching that group, and
+still might have no way of reaching each other.
+
+A group is a collection of programs that can all communicate via pipes
+either directly or indirectly. The programs you identified just a moment
+ago are all part of the same group. Now, they would like you to determine
+the total number of groups.
+
+In the example above, there were 2 groups: one consisting of programs
+0,2,3,4,5,6, and the other consisting solely of program 1.
+
+How many groups are there in total?
+'''
+def day12_2(test_input=None):
+    links = test_input if test_input else input_for_day(12)
+    grouped_programs = []
+    key_programs = []
+    num_groups = -1
+    group_size = -1
+    group = set([])
+    while len(key_programs) > num_groups:
+        num_groups = len(key_programs)
+        for program in links.keys():
+            if len(group) == 0 and program not in grouped_programs:
+                group.add(program)
+                grouped_programs.append(program)
+                key_programs.append(program)
+        while len(group) > group_size:
+            group_size = len(group)
+            for program in links.keys():
+                if program not in group:
+                    for linked_program in links[program]:
+                        if linked_program in group:
+                            group.add(program)
+                            grouped_programs.append(program)
+        group_size = -1
+        group = set([])
+    return len(key_programs)
+
+'''
+--- Day 13: Packet Scanners ---
+
+You need to cross a vast firewall. The firewall consists of several
+layers, each with a security scanner that moves back and forth across the
+layer. To succeed, you must not be detected by a scanner.
+
+By studying the firewall briefly, you are able to record (in your puzzle
+input) the depth of each layer and the range of the scanning area for the
+scanner within it, written as depth: range. Each layer has a thickness of
+exactly 1. A layer at depth 0 begins immediately inside the firewall; a
+layer at depth 1 would start immediately after that.
+
+For example, suppose you've recorded the following:
+
+0: 3
+1: 2
+4: 4
+6: 4
+
+This means that there is a layer immediately inside the firewall (with
+range 3), a second layer immediately after that (with range 2), a third
+layer which begins at depth 4 (with range 4), and a fourth layer which
+begins at depth 6 (also with range 4). Visually, it might look like this:
+
+ 0   1   2   3   4   5   6
+[ ] [ ] ... ... [ ] ... [ ]
+[ ] [ ]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+Within each layer, a security scanner moves back and forth within its
+range. Each security scanner starts at the top and moves down until it
+reaches the bottom, then moves up until it reaches the top, and repeats.
+A security scanner takes one picosecond to move one step. Drawing
+scanners as S, the first few picoseconds look like this:
+
+Picosecond 0:
+ 0   1   2   3   4   5   6
+[S] [S] ... ... [S] ... [S]
+[ ] [ ]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+Picosecond 1:
+ 0   1   2   3   4   5   6
+[ ] [ ] ... ... [ ] ... [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+Picosecond 2:
+ 0   1   2   3   4   5   6
+[ ] [S] ... ... [ ] ... [ ]
+[ ] [ ]         [ ]     [ ]
+[S]             [S]     [S]
+                [ ]     [ ]
+
+Picosecond 3:
+ 0   1   2   3   4   5   6
+[ ] [ ] ... ... [ ] ... [ ]
+[S] [S]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [S]     [S]
+
+Your plan is to hitch a ride on a packet about to move through the
+firewall. The packet will travel along the top of each layer, and it
+moves at one layer per picosecond. Each picosecond, the packet moves one
+layer forward (its first move takes it into layer 0), and then the
+scanners move one step. If there is a scanner at the top of the layer as
+your packet enters it, you are caught. (If a scanner moves into the top
+of its layer while you are there, you are not caught: it doesn't have
+time to notice you before you leave.) If you were to do this in the
+configuration above, marking your current position with parentheses, your
+passage through the firewall would look like this:
+
+Initial state:
+ 0   1   2   3   4   5   6
+[S] [S] ... ... [S] ... [S]
+[ ] [ ]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+
+Picosecond 0:
+ 0   1   2   3   4   5   6
+(S) [S] ... ... [S] ... [S]
+[ ] [ ]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+( ) [ ] ... ... [ ] ... [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+
+Picosecond 1:
+ 0   1   2   3   4   5   6
+[ ] ( ) ... ... [ ] ... [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] (S) ... ... [ ] ... [ ]
+[ ] [ ]         [ ]     [ ]
+[S]             [S]     [S]
+                [ ]     [ ]
+
+
+Picosecond 2:
+ 0   1   2   3   4   5   6
+[ ] [S] (.) ... [ ] ... [ ]
+[ ] [ ]         [ ]     [ ]
+[S]             [S]     [S]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] [ ] (.) ... [ ] ... [ ]
+[S] [S]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [S]     [S]
+
+
+Picosecond 3:
+ 0   1   2   3   4   5   6
+[ ] [ ] ... (.) [ ] ... [ ]
+[S] [S]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [S]     [S]
+
+ 0   1   2   3   4   5   6
+[S] [S] ... (.) [ ] ... [ ]
+[ ] [ ]         [ ]     [ ]
+[ ]             [S]     [S]
+                [ ]     [ ]
+
+
+Picosecond 4:
+ 0   1   2   3   4   5   6
+[S] [S] ... ... ( ) ... [ ]
+[ ] [ ]         [ ]     [ ]
+[ ]             [S]     [S]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] [ ] ... ... ( ) ... [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+
+Picosecond 5:
+ 0   1   2   3   4   5   6
+[ ] [ ] ... ... [ ] (.) [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] [S] ... ... [S] (.) [S]
+[ ] [ ]         [ ]     [ ]
+[S]             [ ]     [ ]
+                [ ]     [ ]
+
+
+Picosecond 6:
+ 0   1   2   3   4   5   6
+[ ] [S] ... ... [S] ... (S)
+[ ] [ ]         [ ]     [ ]
+[S]             [ ]     [ ]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] [ ] ... ... [ ] ... ( )
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+In this situation, you are caught in layers 0 and 6, because your packet
+entered the layer when its scanner was at the top when you entered it.
+You are not caught in layer 1, since the scanner moved into the top of
+the layer once you were already there.
+
+The severity of getting caught on a layer is equal to its depth
+multiplied by its range. (Ignore layers in which you do not get caught.)
+The severity of the whole trip is the sum of these values. In the example
+above, the trip severity is 0*3 + 6*4 = 24.
+
+Given the details of the firewall you've recorded, if you leave
+immediately, what is the severity of your whole trip?
+'''
+def day13_1(test_input=None):
+    scan_ranges = test_input if test_input else input_for_day(13)
+    penalty = 0
+    for depth in scan_ranges.keys():
+        scan_range = scan_ranges[depth]
+        if depth % (scan_range - 1) == 0 and (depth / (scan_range - 1)) % 2 == 0:
+            penalty += depth * scan_range
+    return penalty
+
+'''
+Now, you need to pass through the firewall without being caught - easier
+said than done.
+
+You can't control the speed of the packet, but you can delay it any
+number of picoseconds. For each picosecond you delay the packet before
+beginning your trip, all security scanners move one step. You're not in
+the firewall during this time; you don't enter layer 0 until you stop
+delaying the packet.
+
+In the example above, if you delay 10 picoseconds (picoseconds 0 - 9), you won't get caught:
+
+State after delaying:
+ 0   1   2   3   4   5   6
+[ ] [S] ... ... [ ] ... [ ]
+[ ] [ ]         [ ]     [ ]
+[S]             [S]     [S]
+                [ ]     [ ]
+
+
+Picosecond 10:
+ 0   1   2   3   4   5   6
+( ) [S] ... ... [ ] ... [ ]
+[ ] [ ]         [ ]     [ ]
+[S]             [S]     [S]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+( ) [ ] ... ... [ ] ... [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+
+Picosecond 11:
+ 0   1   2   3   4   5   6
+[ ] ( ) ... ... [ ] ... [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[S] (S) ... ... [S] ... [S]
+[ ] [ ]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+
+Picosecond 12:
+ 0   1   2   3   4   5   6
+[S] [S] (.) ... [S] ... [S]
+[ ] [ ]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] [ ] (.) ... [ ] ... [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+
+Picosecond 13:
+ 0   1   2   3   4   5   6
+[ ] [ ] ... (.) [ ] ... [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] [S] ... (.) [ ] ... [ ]
+[ ] [ ]         [ ]     [ ]
+[S]             [S]     [S]
+                [ ]     [ ]
+
+
+Picosecond 14:
+ 0   1   2   3   4   5   6
+[ ] [S] ... ... ( ) ... [ ]
+[ ] [ ]         [ ]     [ ]
+[S]             [S]     [S]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] [ ] ... ... ( ) ... [ ]
+[S] [S]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [S]     [S]
+
+
+Picosecond 15:
+ 0   1   2   3   4   5   6
+[ ] [ ] ... ... [ ] (.) [ ]
+[S] [S]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [S]     [S]
+
+ 0   1   2   3   4   5   6
+[S] [S] ... ... [ ] (.) [ ]
+[ ] [ ]         [ ]     [ ]
+[ ]             [S]     [S]
+                [ ]     [ ]
+
+
+Picosecond 16:
+ 0   1   2   3   4   5   6
+[S] [S] ... ... [ ] ... ( )
+[ ] [ ]         [ ]     [ ]
+[ ]             [S]     [S]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] [ ] ... ... [ ] ... ( )
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+Because all smaller delays would get you caught, the fewest number of
+picoseconds you would need to delay to get through safely is 10.
+
+What is the fewest number of picoseconds that you need to delay the
+packet to pass through the firewall without being caught?
+'''
+def day13_2(test_input=None):
+    scan_ranges = test_input if test_input else input_for_day(13)
+    delay = 0
+    collisions = 1
+    while collisions > 0:
+        collisions = 0
+        delay += 1
+        for depth in scan_ranges.keys():
+            scan_range = scan_ranges[depth]
+            if (depth + delay) % (scan_range - 1) == 0 and ((depth + delay) / (scan_range - 1)) % 2 == 0:
+                collisions += 1
+                break
+    return delay
+
+'''
+--- Day 14: Disk Defragmentation ---
+
+Suddenly, a scheduled job activates the system's disk defragmenter. Were
+the situation different, you might sit and watch it for a while, but
+today, you just don't have that kind of time. It's soaking up valuable
+system resources that are needed elsewhere, and so the only option is to
+help it finish its task as soon as possible.
+
+The disk in question consists of a 128x128 grid; each square of the grid
+is either free or used. On this disk, the state of the grid is tracked by
+the bits in a sequence of knot hashes.
+
+A total of 128 knot hashes are calculated, each corresponding to a single
+row in the grid; each hash contains 128 bits which correspond to
+individual grid squares. Each bit of a hash indicates whether that square
+is free (0) or used (1).
+
+The hash inputs are a key string (your puzzle input), a dash, and a
+number from 0 to 127 corresponding to the row. For example, if your key
+string were flqrgnkx, then the first row would be given by the bits of
+the knot hash of flqrgnkx-0, the second row from the bits of the knot
+hash of flqrgnkx-1, and so on until the last row, flqrgnkx-127.
+
+The output of a knot hash is traditionally represented by 32 hexadecimal
+digits; each of these digits correspond to 4 bits, for a total of
+4 * 32 = 128 bits. To convert to bits, turn each hexadecimal digit to its
+equivalent binary value, high-bit first: 0 becomes 0000, 1 becomes 0001,
+e becomes 1110, f becomes 1111, and so on; a hash that begins with
+a0c2017... in hexadecimal would begin with
+10100000110000100000000101110000... in binary.
+
+Continuing this process, the first 8 rows and columns for key flqrgnkx
+appear as follows, using # to denote used squares, and . to denote free
+ones:
+
+##.#.#..-->
+.#.#.#.#
+....#.#.
+#.#.##.#
+.##.#...
+##..#..#
+.#...#..
+##.#.##.-->
+|      |
+V      V
+
+In this example, 8108 squares are used across the entire 128x128 grid.
+
+Given your actual key string, how many squares are used?
+'''
+def day14_1(test_input=None):
+    key = test_input if test_input else input_for_day(14)
+    used_blocks = 0
+    for i in range(0, 128):
+        row = day10_2("%s-%d" % (key, i))
+        used_blocks += bin(int(row, 16))[2:].count('1')
+    return used_blocks
+
+'''
+Now, all the defragmenter needs to know is the number of regions. A
+region is a group of used squares that are all adjacent, not including
+diagonals. Every used square is in exactly one region: lone used squares
+form their own isolated regions, while several adjacent squares all count
+as a single region.
+
+In the example above, the following nine regions are visible, each marked
+with a distinct digit:
+
+11.2.3..-->
+.1.2.3.4
+....5.6.
+7.8.55.9
+.88.5...
+88..5..8
+.8...8..
+88.8.88.-->
+|      |
+V      V
+
+Of particular interest is the region marked 8; while it does not appear
+contiguous in this small view, all of the squares marked 8 are connected
+when considering the whole 128x128 grid. In total, in this example, 1242
+regions are present.
+
+How many regions are present given your key string?
+'''
+def day14_2(test_input=None):
+    def merge_regions(result_region, redundant_region):
+        for (row, column) in regions[redundant_region]:
+            regions[result_region].append((row, column))
+            region_map[(row, column)] = result_region
+        regions.pop(redundant_region)
+        return result_region
+
+    key = test_input if test_input else input_for_day(14)
+    rows = []
+    region_map = {}
+    current_region = None
+    encountered_regions = 0
+    regions = {}
+    for i in range(0, 128):
+        row = bin(int(day10_2("%s-%d" % (key, i)), 16))[2:]
+        rows.append(("%128s" % row).replace(' ', '0'))
+    for i in range(0, 128):
+        for j in range(0, 128):
+            if rows[i][j] == '0':
+                region_map[(i, j)] = 0
+                current_region = None
+            else:
+                region_above = region_map[(i - 1, j)] if i > 0 else None
+                if not current_region and rows[i][j] == '1':
+                    if region_above:
+                        current_region = region_above
+                    else:
+                        encountered_regions += 1
+                        current_region = encountered_regions
+                        regions[current_region] = []
+                else:
+                    if region_above and region_above != current_region:
+                        current_region = merge_regions(region_above, current_region)
+                region_map[(i, j)] = current_region
+                regions[current_region].append((i, j))
+        current_region = None
+    return len(regions)
+
 #
 # ADDITIONAL FUNCTIONS
 #
@@ -1174,6 +1773,21 @@ def input_for_day(day, puzzle=1):
             return input
     elif day == 11:
         return input.split(',')
+    elif day == 12:
+        links = {}
+        links_s = input.split('\n')
+        for link_s in links_s:
+            (program, linked_programs) = link_s.split(' <-> ')
+            links[program] = linked_programs.split(', ')
+        return links
+    elif day == 13:
+        layer_depths = {}
+        for layer_depth in input.split('\n'):
+            (layer, depth) = layer_depth.split(': ')
+            layer_depths[int(layer)] = int(depth)
+        return layer_depths
+    elif day == 14:
+        return input
 
 '''
 Print out results for:
@@ -1195,6 +1809,9 @@ def aoc(day=None, puzzle=None):
         9: {1: day09_1, 2: day09_2},
         10: {1: day10_1, 2: day10_2},
         11: {1: day11_1, 2: day11_2},
+        12: {1: day12_1, 2: day12_2},
+        13: {1: day13_1, 2: day13_2},
+        14: {1: day14_1, 2: day14_2},
     }
 
     def print_result(day, puzzle):
