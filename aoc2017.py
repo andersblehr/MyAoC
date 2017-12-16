@@ -44,6 +44,8 @@ For example:
     is the last digit, 9.
 
 What is the solution to your captcha?
+
+Your puzzle answer was 1251.
 '''
 def day01_1():
     digits = input_for_day(1)
@@ -75,6 +77,8 @@ For example:
   - 12131415 produces 4.
 
 What is the solution to your new captcha?
+
+Your puzzle answer was 1244.
 '''
 def day01_2():
     digits = input_for_day(1)
@@ -114,6 +118,8 @@ For example, given the following spreadsheet:
 In this example, the spreadsheet's checksum would be 8 + 4 + 6 = 18.
 
 What is the checksum for the spreadsheet in your puzzle input?
+
+Your puzzle answer was 34581.
 '''
 def day02_1():
     rows = input_for_day(2)
@@ -151,6 +157,8 @@ For example, given the following spreadsheet:
 In this example, the sum of the results would be 4 + 3 + 2 = 9.
 
 What is the sum of each row's result in your puzzle input?
+
+Your puzzle answer was 214.
 '''
 def day02_2():
     rows = input_for_day(2)
@@ -193,6 +201,8 @@ For example:
 
 How many steps are required to carry the data from the square identified
 in your puzzle input all the way to the access port?
+
+Your puzzle answer was 480.
 '''
 
 # SOLUTION NOTES
@@ -270,6 +280,8 @@ few squares would receive the following values:
 362  747  806--->   ...
 
 What is the first value written that is larger than your puzzle input?
+
+Your puzzle answer was 349975.
 '''
 def day03_2(test_input=None):
     input = test_input if test_input else input_for_day(3)
@@ -316,6 +328,8 @@ For example:
 
 The system's full passphrase list is available as your puzzle input. How
 many passphrases are valid?
+
+Your puzzle answer was 455.
 '''
 def day04_1(test_input=None):
     passphrases = test_input if test_input else input_for_day(4)
@@ -339,6 +353,8 @@ For example:
     rearranged to form any other word.
 
 Under this new system policy, how many passphrases are valid?
+
+Your puzzle answer was 186.
 '''
 def day04_2(test_input=None):
     passphrases = test_input if test_input else input_for_day(4)
@@ -399,6 +415,8 @@ following steps would be taken before an exit is found:
 In this example, the exit is reached in 5 steps.
 
 How many steps does it take to reach the exit?
+
+Your puzzle answer was 381680.
 '''
 def day05_1(test_input=None):
     maze = test_input if test_input else input_for_day(5)
@@ -413,6 +431,8 @@ Using this rule with the above example, the process now takes 10 steps,
 and the offset values after finding the exit are left as 2 3 2 3 -1.
 
 How many steps does it now take to reach the exit?
+
+Your puzzle answer was 29717847.
 '''
 def day05_2(test_input=None):
     maze = test_input if test_input else input_for_day(5)
@@ -480,6 +500,8 @@ redistribution cycle, and so the answer in this example is 5.
 Given the initial block counts in your puzzle input, how many
 redistribution cycles must be completed before a configuration is
 produced that has been seen before?
+
+Your puzzle answer was 12841.
 '''
 def day06_1(test_input=None):
     banks = test_input if test_input else input_for_day(6)
@@ -496,6 +518,8 @@ answer in that example would be 4.
 
 How many cycles are in the infinite loop that arises from the
 configuration in your puzzle input?
+
+Your puzzle answer was 8038.
 '''
 def day06_2(test_input=None):
     banks = test_input if test_input else input_for_day(6)
@@ -592,6 +616,8 @@ holding up any other programs, and are all the tops of their own towers.
 
 Before you're ready to help them, you need to make sure your information
 is correct. What is the name of the bottom program?
+
+Your puzzle answer was dtacyn.
 '''
 def day07_1(test_input=None):
     stacks = test_input if test_input else input_for_day(7)
@@ -633,6 +659,8 @@ be 60.
 
 Given that exactly one program is the wrong weight, what would its weight
 need to be to balance the entire tower?
+
+Your puzzle answer was 521.
 '''
 def day07_2(test_input=None):
     def compute_subtree_weights(node):
@@ -695,6 +723,8 @@ registers are named, and leaves that to you to determine.
 
 What is the largest value in any register after completing the
 instructions in your puzzle input?
+
+Your puzzle answer was 3089.
 '''
 def day08_1(test_input=None):
     instructions = test_input if test_input else input_for_day(8)
@@ -706,6 +736,8 @@ register during this process so that it can decide how much memory to
 allocate to these operations. For example, in the above instructions, the
 highest value ever held was 10 (in register c after the third instruction
 was evaluated).
+
+Your puzzle answer was 5391.
 '''
 def day08_2(test_input=None):
     instructions = test_input if test_input else input_for_day(8)
@@ -806,6 +838,8 @@ that immediately contains it. (The outermost group gets a score of 1.)
   - {{<a!>},{<a!>},{<a!>},{<ab>}}, score of 1 + 2 = 3.
 
 What is the total score for all groups in your input?
+
+Your puzzle answer was 23588.
 '''
 def day09_1(test_input=None):
     stream = test_input if test_input else input_for_day(9)
@@ -828,6 +862,8 @@ any canceled characters or the ! doing the canceling.
 
 How many non-canceled characters are within the garbage in your puzzle
 input?
+
+Your puzzle answer was 10045.
 '''
 def day09_2(test_input=None):
     stream = test_input if test_input else input_for_day(9)
@@ -934,6 +970,8 @@ However, you should instead use the standard list size of 256 (with
 values 0 to 255) and the sequence of lengths in your puzzle input. Once
 this process is complete, what is the result of multiplying the first two
 numbers in the list?
+
+Your puzzle answer was 11413.
 '''
 def day10_1(test_input=None):
     lengths = test_input if test_input else input_for_day(10)
@@ -1007,6 +1045,8 @@ Here are some example hashes:
 Treating your puzzle input as a string of ASCII characters, what is the
 Knot Hash of your puzzle input? Ignore any leading or trailing
 whitespace you might encounter.
+
+Your puzzle answer was 7adfd64c2a03a4968cf708d1b7fd418d.
 '''
 def day10_2(test_input=None):
     input = test_input if test_input else input_for_day(10, 2)
@@ -1079,6 +1119,8 @@ For example:
   - ne,ne,sw,sw is 0 steps away (back where you started).
   - ne,ne,s,s is 2 steps away (se,se).
   - se,sw,se,sw,sw is 3 steps away (s,s,sw).
+
+Your puzzle answer was 715.
 '''
 def day11_1(test_input=None):
     steps = test_input if test_input else input_for_day(11)
@@ -1091,6 +1133,8 @@ def day11_1(test_input=None):
 '''
 How many steps away is the furthest he ever got from his starting
 position?
+
+Your puzzle answer was 1512.
 '''
 def day11_2(test_input=None):
     steps = test_input if test_input else input_for_day(11)
@@ -1174,6 +1218,8 @@ Therefore, a total of 6 programs are in this group; all but program 1,
 which has a pipe that connects it to itself.
 
 How many programs are in the group that contains program ID 0?
+
+Your puzzle answer was 128.
 '''
 def day12_1(test_input=None):
     links = test_input if test_input else input_for_day(12)
@@ -1229,6 +1275,8 @@ In the example above, there were 2 groups: one consisting of programs
 0,2,3,4,5,6, and the other consisting solely of program 1.
 
 How many groups are there in total?
+
+Your puzzle answer was 209.
 '''
 def day12_2(test_input=None):
     links = test_input if test_input else input_for_day(12)
@@ -1449,6 +1497,8 @@ above, the trip severity is 0*3 + 6*4 = 24.
 
 Given the details of the firewall you've recorded, if you leave
 immediately, what is the severity of your whole trip?
+
+Your puzzle answer was 2384.
 '''
 def day13_1(test_input=None):
     scan_ranges = test_input if test_input else input_for_day(13)
@@ -1581,6 +1631,8 @@ picoseconds you would need to delay to get through safely is 10.
 
 What is the fewest number of picoseconds that you need to delay the
 packet to pass through the firewall without being caught?
+
+Your puzzle answer was 3921270.
 '''
 def day13_2(test_input=None):
     scan_ranges = test_input if test_input else input_for_day(13)
@@ -1646,6 +1698,8 @@ V      V
 In this example, 8108 squares are used across the entire 128x128 grid.
 
 Given your actual key string, how many squares are used?
+
+Your puzzle answer was 8194.
 '''
 def day14_1(test_input=None):
     key = test_input if test_input else input_for_day(14)
@@ -1682,6 +1736,8 @@ when considering the whole 128x128 grid. In total, in this example, 1242
 regions are present.
 
 How many regions are present given your key string?
+
+Your puzzle answer was 1141.
 '''
 def day14_2(test_input=None):
     def merge_regions(result_region, redundant_region):
@@ -1781,6 +1837,8 @@ pairs. (In the example above, the judge would eventually find a total of
 588 pairs that match in their lowest 16 bits.)
 
 After 40 million pairs, what is the judge's final count?
+
+Your puzzle answer was 573.
 '''
 def day15_1(test_input=None, iterations=40000000):
     generator_inputs = test_input if test_input else input_for_day(15)
@@ -1862,6 +1920,8 @@ eventually find a total of 309 pairs that match in their lowest 16 bits.)
 
 After 5 million pairs, but using this new generator logic, what is the
 judge's final count?
+
+Your puzzle answer was 294.
 '''
 def day15_2(test_input=None, max_comparisons=5000000):
     generator_inputs = test_input if test_input else input_for_day(15)
@@ -1884,6 +1944,94 @@ def day15_2(test_input=None, max_comparisons=5000000):
                 match_count += 1
             offset += 1
     return match_count
+
+'''
+--- Day 16: Permutation Promenade ---
+
+You come upon a very unusual sight; a group of programs here appear to be
+dancing.
+
+There are sixteen programs in total, named a through p. They start by
+standing in a line: a stands in position 0, b stands in position 1, and
+so on until p, which stands in position 15.
+
+The programs' dance consists of a sequence of dance moves:
+
+  - Spin, written sX, makes X programs move from the end to the front,
+    but maintain their order otherwise. (For example, s3 on abcde
+    produces cdeab).
+  - Exchange, written xA/B, makes the programs at positions A and B swap
+    places.
+  - Partner, written pA/B, makes the programs named A and B swap places.
+
+For example, with only five programs standing in a line (abcde), they
+could do the following dance:
+
+  - s1, a spin of size 1: eabcd.
+  - x3/4, swapping the last two programs: eabdc.
+  - pe/b, swapping programs e and b: baedc.
+
+After finishing their dance, the programs end up in order baedc.
+
+You watch the dance for a while and record their dance moves (your puzzle
+input). In what order are the programs standing after their dance?
+
+Your puzzle answer was kbednhopmfcjilag.
+'''
+def day16_1(test_input=None, start_state=None):
+    moves = test_input if test_input else input_for_day(16)
+    programs = list(start_state) if start_state else list('abcdefghijklmnop')
+    for move in moves:
+        move_type = move[0]
+        instruction = move[1:]
+        if move_type == 's':
+            tail = programs[-int(instruction):]
+            head = programs[:16 - int(instruction)]
+            programs = tail + head
+        elif move_type == 'x':
+            (a, b) = instruction.split('/')
+            program_a = programs[int(a)]
+            program_b = programs[int(b)]
+            programs[int(a)] = program_b
+            programs[int(b)] = program_a
+        else:
+            (program_a, program_b) = instruction.split('/')
+            index_a = programs.index(program_a)
+            index_b = programs.index(program_b)
+            programs[index_a] = program_b
+            programs[index_b] = program_a
+    return ''.join(programs)
+
+'''
+Now that you're starting to get a feel for the dance moves, you turn your
+attention to the dance as a whole.
+
+Keeping the positions they ended up in from their previous dance, the
+programs perform it again and again: including the first dance, a total
+of one billion (1000000000) times.
+
+In the example above, their second dance would begin with the order baedc
+, and use the same dance moves:
+
+  - s1, a spin of size 1: cbaed.
+  - x3/4, swapping the last two programs: cbade.
+  - pe/b, swapping programs e and b: ceadb.
+
+In what order are the programs standing after their billion dances?
+
+Your puzzle answer was fbmcgdnjakpioelh.
+'''
+def day16_2():
+    start_state = 'abcdefghijklmnop'
+    states = [start_state]
+    found_period = False
+    period = 0
+    while not found_period:
+        period += 1
+        states.append(day16_1(None, states[period - 1]))
+        found_period = states[-1] == start_state
+    remainder = 1000000000 % period
+    return states[remainder]
 
 #
 # ADDITIONAL FUNCTIONS
@@ -1956,6 +2104,8 @@ def input_for_day(day, puzzle=1):
         for generator_input_string in generator_input_strings:
             generator_inputs.append(int(generator_input_string.split(' ')[-1]))
         return generator_inputs
+    elif day == 16:
+        return input.split(',')
 
 '''
 Print out results for:
@@ -1981,6 +2131,7 @@ def aoc(day=None, puzzle=None):
         13: {1: day13_1, 2: day13_2},
         14: {1: day14_1, 2: day14_2},
         15: {1: day15_1, 2: day15_2},
+        16: {1: day16_1, 2: day16_2},
     }
 
     def print_result(day, puzzle):
