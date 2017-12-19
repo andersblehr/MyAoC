@@ -2141,6 +2141,338 @@ def day17_2(test_input=None):
 #
 
 '''
+--- Day 18: Duet ---
+
+You discover a tablet containing some strange assembly code labeled simply
+"Duet". Rather than bother the sound card with it, you decide to run the
+code yourself. Unfortunately, you don't see any documentation, so you're
+left to figure out what the instructions mean on your own.
+
+It seems like the assembly is meant to operate on a set of registers that
+are each named with a single letter and that can each hold a single
+integer. You suppose each register should start with a value of 0.
+
+There aren't that many instructions, so it shouldn't be hard to figure out
+what they do. Here's what you determine:
+
+  - snd X plays a sound with a frequency equal to the value of X.
+  - set X Y sets register X to the value of Y.
+  - add X Y increases register X by the value of Y.
+  - mul X Y sets register X to the result of multiplying the value
+    contained in register X by the value of Y.
+  - mod X Y sets register X to the remainder of dividing the value
+    contained in register X by the value of Y (that is, it sets X to the
+    result of X modulo Y).
+  - rcv X recovers the frequency of the last sound played, but only when
+    the value of X is not zero. (If it is zero, the command does nothing.)
+  - jgz X Y jumps with an offset of the value of Y, but only if the value
+    of X is greater than zero. (An offset of 2 skips the next instruction,
+    an offset of -1 jumps to the previous instruction, and so on.)
+
+Many of the instructions can take either a register (a single letter) or a
+number. The value of a register is the integer it contains; the value of a
+number is that number.
+
+After each jump instruction, the program continues with the instruction to
+which the jump jumped. After any other instruction, the program continues
+with the next instruction. Continuing (or jumping) off either end of the
+program terminates it.
+
+For example:
+
+set a 1
+add a 2
+mul a a
+mod a 5
+snd a
+set a 0
+rcv a
+jgz a -1
+set a 1
+jgz a -2
+
+  - The first four instructions set a to 1, add 2 to it, square it, and
+    then set it to itself modulo 5, resulting in a value of 4.
+  - Then, a sound with frequency 4 (the value of a) is played.
+  - After that, a is set to 0, causing the subsequent rcv and jgz
+    instructions to both be skipped (rcv because a is 0, and jgz because a
+    is not greater than 0).
+  - Finally, a is set to 1, causing the next jgz instruction to activate,
+    jumping back two instructions to another jump, which jumps again to
+    the rcv, which ultimately triggers the recover operation.
+
+At the time the recover operation is executed, the frequency of the last
+sound played is 4.
+
+What is the value of the recovered frequency (the value of the most
+recently played sound) the first time a rcv instruction is executed with a
+non-zero value?
+
+Your puzzle answer was 9423.
+'''
+def day18_1(test_input=None):
+    def int_or_register(value):
+        try:
+            return int(value)
+        except ValueError:
+            return registers[value]
+
+    instructions = test_input if test_input else input_for_day(18)
+    registers = {}
+    last_sound_played = None
+    step = 0
+    while step in range(0, len(instructions)):
+        instruction = instructions[step]
+        elements = instruction.split(' ')
+        operator = elements[0]
+        register = elements[1]
+        if register not in registers:
+            registers[register] = 0
+        value = int_or_register(elements[2]) if len(elements) > 2 else None
+        did_jump = False
+        if operator == 'snd':
+            last_sound_played = registers[register]
+        elif operator == 'set':
+            registers[register] = value
+        elif operator == 'add':
+            registers[register] += value
+        elif operator == 'mul':
+            registers[register] *= value
+        elif operator == 'mod':
+            registers[register] %= value
+        elif operator == 'rcv':
+            if registers[register] > 0:
+                return last_sound_played
+        elif operator == 'jgz':
+            if registers[register] > 0:
+                step += value
+                did_jump = True
+        print("%s %s" % (instruction, registers))
+        if not did_jump:
+            step += 1
+
+'''
+As you congratulate yourself for a job well done, you notice that the
+documentation has been on the back of the tablet this entire time. While
+you actually got most of the instructions correct, there are a few key
+differences. This assembly code isn't about sound at all - it's meant to
+be run twice at the same time.
+
+Each running copy of the program has its own set of registers and follows
+the code independently - in fact, the programs don't even necessarily run
+at the same speed. To coordinate, they use the send (snd) and receive (rcv
+) instructions:
+
+  - snd X sends the value of X to the other program. These values wait in
+    a queue until that program is ready to receive them. Each program has
+    its own message queue, so a program can never receive a message it
+    sent.
+  - rcv X receives the next value and stores it in register X. If no
+    values are in the queue, the program waits for a value to be sent to
+    it. Programs do not continue to the next instruction until they have
+    received a value. Values are received in the order they are sent.
+
+Each program also has its own program ID (one 0 and the other 1); the
+register p should begin with this value.
+
+For example:
+
+snd 1
+snd 2
+snd p
+rcv a
+rcv b
+rcv c
+rcv d
+
+Both programs begin by sending three values to the other. Program 0 sends
+1, 2, 0; program 1 sends 1, 2, 1. Then, each program receives a value
+(both 1) and stores it in a, receives another value (both 2) and stores it
+in b, and then each receives the program ID of the other program (program
+0 receives 1; program 1 receives 0) and stores it in c. Each program now
+sees a different value in its own copy of register c.
+
+Finally, both programs try to rcv a fourth time, but no data is waiting
+for either of them, and they reach a deadlock. When this happens, both
+programs terminate.
+
+It should be noted that it would be equally valid for the programs to run
+at different speeds; for example, program 0 might have sent all three
+values and then stopped at the first rcv before program 1 executed even
+its first instruction.
+
+Once both of your programs have terminated (regardless of what caused them
+to do so), how many times did program 1 send a value?
+
+Your puzzle answer was 7620.
+'''
+def day18_2(test_input=None):
+    def int_or_register(value):
+        try:
+            return int(value)
+        except ValueError:
+            return registers[program][value]
+
+    instructions = test_input if test_input else input_for_day(18)
+    registers = {0: {'p': 0}, 1: {'p': 1}}
+    queue = [[], []]
+    state = [1, 1]  # 1: running; 0: waiting; -1: terminated
+    step = [0, 0]
+    program = 0
+    snd_count = [0, 0]
+    while True:
+        instruction = instructions[step[program]]
+        elements = instruction.split(' ')
+        operator = elements[0]
+        register = elements[1]
+        if register not in registers[program]:
+            registers[program][register] = 0
+        value = int_or_register(elements[2]) if len(elements) > 2 else None
+        did_jump = False
+        did_swap = False
+        if operator == 'snd':
+            queue[1 - program].append(registers[program][register])
+            snd_count[program] += 1
+        elif operator == 'set':
+            registers[program][register] = value
+        elif operator == 'add':
+            registers[program][register] += value
+        elif operator == 'mul':
+            registers[program][register] *= value
+        elif operator == 'mod':
+            registers[program][register] %= value
+        elif operator == 'rcv':
+            if len(queue[program]) > 0:
+                registers[program][register] = queue[program].pop(0)
+                state[program] = 1
+            else:
+                if state[1 - program] == -1:
+                    break
+                if state[1 - program] == 0 and len(queue[1 - program]) == 0:
+                    break
+                state[program] = 0
+                program = 1 - program
+                did_swap = True
+        elif operator == 'jgz':
+            if int_or_register(register) > 0:
+                step[program] += value
+                did_jump = True
+        if not did_jump and not did_swap:
+            step[program] += 1
+        if step[program] not in range(0, len(instructions)):
+            if state[1 - program] == -1:
+                break
+            state[program] = -1
+            program = 1 - program
+    return snd_count[1]
+
+'''
+--- Day 19: A Series of Tubes ---
+
+Somehow, a network packet got lost and ended up here. It's trying to
+follow a routing diagram (your puzzle input), but it's confused about
+where to go.
+
+Its starting point is just off the top of the diagram. Lines (drawn with |
+, -, and +) show the path it needs to take, starting by going down onto
+the only line connected to the top of the diagram. It needs to follow this
+path until it reaches the end (located somewhere within the diagram) and
+stop there.
+
+Sometimes, the lines cross over each other; in these cases, it needs to
+continue going the same direction, and only turn left or right when
+there's no other option. In addition, someone has left letters on the
+line; these also don't change its direction, but it can use them to keep
+track of where it's been. For example:
+
+     |
+     |  +--+
+     A  |  C
+ F---|----E|--+
+     |  |  |  D
+     +B-+  +--+
+
+Given this diagram, the packet needs to take the following path:
+
+  - Starting at the only line touching the top of the diagram, it must go
+    down, pass through A, and continue onward to the first +.
+  - Travel right, up, and right, passing through B in the process.
+  - Continue down (collecting C), right, and up (collecting D).
+  - Finally, go all the way left through E and stopping at F.
+
+Following the path to the end, the letters it sees on its path are ABCDEF.
+
+The little packet looks up at you, hoping you can help it find the way.
+What letters will it see (in the order it would see them) if it follows
+the path? (The routing diagram is very wide; make sure you view it without
+line wrapping.)
+
+Your puzzle answer was EOCZQMURF.
+'''
+def day19_1(test_input=None):
+    diagram = test_input if test_input else input_for_day(19)
+    return day19_shared(diagram, 1)
+
+'''
+The packet is curious how many steps it needs to go.
+
+For example, using the same routing diagram from the example above...
+
+     |
+     |  +--+
+     A  |  C
+ F---|--|-E---+
+     |  |  |  D
+     +B-+  +--+
+
+...the packet would go:
+
+  - 6 steps down (including the first line at the top of the diagram).
+  - 3 steps right.
+  - 4 steps up.
+  - 3 steps right.
+  - 4 steps down.
+  - 3 steps right.
+  - 2 steps up.
+  - 13 steps left (including the F it stops on).
+
+This would result in a total of 38 steps.
+
+How many steps does the packet need to go?
+
+Your puzzle answer was 16312.
+'''
+def day19_2(test_input=None):
+    diagram = test_input if test_input else input_for_day(19)
+    return day19_shared(diagram, 2)
+
+# Day 19 shared code
+def day19_shared(diagram, puzzle):
+    (y, x) = (0, 0)
+    while diagram[y][x] != '|':
+        x += 1
+    delta_y = 1
+    delta_x = 0
+    letters = ''
+    steps = 1
+    while x in range(len(diagram[y])) and y in range(len(diagram)):
+        if diagram[y][x] == '+':
+            if delta_y != 0:
+                delta_y = 0
+                delta_x = 1 if diagram[y][x + 1] != ' ' else -1
+            else:
+                delta_y = 1 if diagram[y + 1][x] != ' ' else -1
+                delta_x = 0
+        elif diagram[y][x] == ' ':
+            break
+        elif diagram[y][x] in 'ABCDEFGHIjKlMNOPQRSTUVWXYZ':
+            letters = letters + diagram[y][x]
+        y += delta_y
+        x += delta_x
+        steps += 1
+    return letters if puzzle == 1 else steps - 1
+
+'''
 Load input for given day from file and prepare for processing
 '''
 def input_for_day(day, puzzle=1):
@@ -2211,6 +2543,10 @@ def input_for_day(day, puzzle=1):
         return input.split(',')
     elif day == 17:
         return int(input)
+    elif day == 18:
+        return input.split('\n')
+    elif day == 19:
+        return [list(row) for row in input.split('\n')]
 
 '''
 Print out results for:
@@ -2238,6 +2574,8 @@ def aoc(day=None, puzzle=None):
         15: {1: day15_1, 2: day15_2},
         16: {1: day16_1, 2: day16_2},
         17: {1: day17_1, 2: day17_2},
+        18: {1: day18_1, 2: day18_2},
+        19: {1: day19_1, 2: day19_2},
     }
 
     def print_result(day, puzzle):
