@@ -1166,7 +1166,7 @@ def compute_distance(position):
         y_pos -= 0.5
         x_pos -= 1
     distance += max(y_pos, x_pos)
-    return distance
+    return int(distance)
 
 '''
 --- Day 12: Digital Plumber ---
@@ -2136,10 +2136,6 @@ def day17_2(test_input=None):
         value += 1
     return value_at_1
 
-#
-# ADDITIONAL FUNCTIONS
-#
-
 '''
 --- Day 18: Duet ---
 
@@ -2247,7 +2243,6 @@ def day18_1(test_input=None):
             if registers[register] > 0:
                 step += value
                 did_jump = True
-        print("%s %s" % (instruction, registers))
         if not did_jump:
             step += 1
 
@@ -2598,13 +2593,215 @@ def day20_2(test_input=None):
             if len(occupied_positions[position]) > 1:
                 for p in occupied_positions[position]:
                     annihilated_particles.append(p)
-        last_remaining_count = remaining_count
-        remaining_count = (len(states) - len(annihilated_particles))
-        if remaining_count == last_remaining_count:
+        if len(states) - len(annihilated_particles) == remaining_count:
             flatline_count += 1
             if flatline_count > 100:
                 break
+        else:
+            remaining_count = len(states) - len(annihilated_particles)
     return remaining_count
+
+'''
+--- Day 21: Fractal Art ---
+
+You find a program trying to generate some art. It uses a strange process
+that involves repeatedly enhancing the detail of an image through a set of
+rules.
+
+The image consists of a two-dimensional square grid of pixels that are
+either on (#) or off (.). The program always begins with this pattern:
+
+.#.
+..#
+###
+
+Because the pattern is both 3 pixels wide and 3 pixels tall, it is said
+to have a size of 3.
+
+Then, the program repeats the following process:
+
+  - If the size is evenly divisible by 2, break the pixels up into 2x2
+    squares, and convert each 2x2 square into a 3x3 square by following
+    the corresponding enhancement rule.
+  - Otherwise, the size is evenly divisible by 3; break the pixels up into
+    3x3 squares, and convert each 3x3 square into a 4x4 square by
+    following the corresponding enhancement rule.
+
+Because each square of pixels is replaced by a larger one, the image gains
+pixels and so its size increases.
+
+The artist's book of enhancement rules is nearby (your puzzle input);
+however, it seems to be missing rules. The artist explains that sometimes,
+one must rotate or flip the input pattern to find a match. (Never rotate
+or flip the output pattern, though.) Each pattern is written concisely:
+rows are listed as single units, ordered top-down, and separated by
+slashes. For example, the following rules correspond to the adjacent
+patterns:
+
+../.#  =  ..
+          .#
+
+                .#.
+.#./..#/###  =  ..#
+                ###
+
+                        #..#
+#..#/..../#..#/.##.  =  ....
+                        #..#
+                        .##.
+
+When searching for a rule to use, rotate and flip the pattern as
+necessary. For example, all of the following patterns match the same rule:
+
+.#.   .#.   #..   ###
+..#   #..   #.#   ..#
+###   ###   ##.   .#.
+
+Suppose the book contained the following two rules:
+
+../.# => ##./#../...
+.#./..#/### => #..#/..../..../#..#
+
+As before, the program begins with this pattern:
+
+.#.
+..#
+###
+
+The size of the grid (3) is not divisible by 2, but it is divisible by 3.
+It divides evenly into a single square; the square matches the second
+rule, which produces:
+
+#..#
+....
+....
+#..#
+
+The size of this enhanced grid (4) is evenly divisible by 2, so that rule
+is used. It divides evenly into four squares:
+
+#.|.#
+..|..
+--+--
+..|..
+#.|.#
+
+Each of these squares matches the same rule (../.# => ##./#../...), three
+of which require some flipping and rotation to line up with the rule. The
+output for the rule is the same in all four cases:
+
+##.|##.
+#..|#..
+...|...
+---+---
+##.|##.
+#..|#..
+...|...
+
+Finally, the squares are joined into a new grid:
+
+##.##.
+#..#..
+......
+##.##.
+#..#..
+......
+
+Thus, after 2 iterations, the grid contains 12 pixels that are on.
+
+How many pixels stay on after 5 iterations?
+
+Your puzzle answer was 179.
+'''
+def day21_1(test_input=None):
+    rules = test_input if test_input else input_for_day(21)
+    return day21_shared(rules, 1)
+
+'''
+How many pixels stay on after 18 iterations?
+
+Your puzzle answer was 2766750.
+'''
+def day21_2(test_input=None):
+    rules = test_input if test_input else input_for_day(21)
+    return day21_shared(rules, 2)
+
+# Day 21 shared code
+def day21_shared(rules, puzzle):
+    def match(square, rule):
+        def flip(square):
+            flipped_square = []
+            for row in range(len(square)):
+                flipped_square.append(square[row][::-1])
+            return flipped_square
+
+        def rotate(square):
+            rotated_square = [[] for _ in range(len(square))]
+            for row in reversed(range(len(square))):
+                for column in range(len(square)):
+                    rotated_square[column].append(square[row][column])
+            return rotated_square
+
+        def match_permutation(permutation):
+            matches = True
+            for row in range(len(rule)):
+                matches = matches and ''.join(rule[row]) == ''.join(permutation[row])
+            return matches
+
+        matches = match_permutation(square)
+        if not matches:
+            flipped = flip(square)
+            matches = match_permutation(flipped)
+        if not matches:
+            square = rotate(square)
+            matches = match_permutation(square)
+        if not matches:
+            flipped = flip(square)
+            matches = match_permutation(flipped)
+        if not matches:
+            square = rotate(square)
+            matches = match_permutation(square)
+        if not matches:
+            flipped = flip(square)
+            matches = match_permutation(flipped)
+        if not matches:
+            square = rotate(square)
+            matches = match_permutation(square)
+        if not matches:
+            flipped = flip(square)
+            matches = match_permutation(flipped)
+        return matches
+
+    pattern = [list('.#.'), list('..#'), list('###')]
+    for _ in range(5 if puzzle == 1 else 18):
+        size = len(pattern)
+        square_size = 2 if size % 2 == 0 else 3
+        ratio = size / square_size
+        enhanced_pattern = [[] for _ in range(ratio * (square_size + 1))]
+        for d_y in range(ratio):
+            for d_x in range(ratio):
+                square = []
+                offset_x = d_x * square_size
+                for i in range(square_size):
+                    offset_y = d_y * square_size + i
+                    square.append(pattern[offset_y][offset_x:offset_x + square_size])
+                for rule in rules:
+                    if len(rule) == square_size and match(square, rule):
+                        for row in range(len(rules[rule])):
+                            overall_row = d_y * (square_size + 1) + row
+                            enhanced_pattern[overall_row] += list(rules[rule][row])
+                        break
+        pattern = enhanced_pattern
+    pixels_on = 0
+    for row in pattern:
+        for pixel in row:
+            if pixel == '#':
+                pixels_on += 1
+    return pixels_on
+
+#
+# ADDITIONAL FUNCTIONS
+#
 
 '''
 Load input for given day from file and prepare for processing
@@ -2692,6 +2889,12 @@ def input_for_day(day, puzzle=1):
                 vectors.append(tuple([int(n) for n in vector_coords.split(',')]))
             states.append(vectors)
         return states
+    elif day == 21:
+        rules = {}
+        for rule_string in input.split('\n'):
+            (match_pattern, result_pattern) = rule_string.split(' => ')
+            rules[tuple(match_pattern.split('/'))] = result_pattern.split('/')
+        return rules
 
 '''
 Print out results for:
@@ -2722,6 +2925,7 @@ def aoc(day=None, puzzle=None):
         18: {1: day18_1, 2: day18_2},
         19: {1: day19_1, 2: day19_2},
         20: {1: day20_1, 2: day20_2},
+        21: {1: day21_1, 2: day21_2},
     }
 
     def print_result(day, puzzle):
