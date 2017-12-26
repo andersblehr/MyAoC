@@ -1,4 +1,4 @@
-import aocinput
+#!/usr/bin/env python
 
 '''
 --- Day 25: The Halting Problem ---
