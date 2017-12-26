@@ -66,16 +66,13 @@ Your puzzle answer was 573.
 '''
 def puzzle_1(test_input=None, iterations=40000000):
     generator_inputs = test_input if test_input else aocinput.input_for_day(15)
-    factors = {'A': 16807, 'B': 48271}
-    divisor = 2147483647
-    results = {'A': generator_inputs[0], 'B': generator_inputs[1]}
-    binary = {}
+    result_1 = generator_inputs[0]
+    result_2 = generator_inputs[1]
     match_count = 0
-    for _ in range(0, iterations):
-        for generator in ['A', 'B']:
-            results[generator] = (results[generator] * factors[generator]) % divisor
-            binary[generator] = bin(results[generator])[-16:]
-        if binary['A'] == binary['B']:
+    for _ in xrange(0, iterations):
+        result_1 = (result_1 * 16807) % 2147483647
+        result_2 = (result_2 * 48271) % 2147483647
+        if result_1 & 65535 == result_2 & 65535:
             match_count += 1
     return match_count
 
@@ -149,24 +146,25 @@ Your puzzle answer was 294.
 '''
 def puzzle_2(test_input=None, max_comparisons=5000000):
     generator_inputs = test_input if test_input else aocinput.input_for_day(15)
-    factors = {'A': 16807, 'B': 48271}
-    divisor = 2147483647
-    whim_divisors = {'A': 4, 'B': 8}
-    values = {'A': generator_inputs[0], 'B': generator_inputs[1]}
-    results = {'A': [], 'B': []}
-    offset = 0
+    result_1 = generator_inputs[0]
+    result_2 = generator_inputs[1]
+    offset_1 = 0
+    offset_2 = 0
     comparisons = 0
     match_count = 0
     while comparisons < max_comparisons:
-        for generator in ['A', 'B']:
-            values[generator] = (values[generator] * factors[generator]) % divisor
-            if values[generator] % whim_divisors[generator] == 0:
-                results[generator].append(bin(values[generator])[-16:])
-        if min(len(results['A']), len(results['B'])) > offset:
-            comparisons += 1
-            if results['A'][offset] == results['B'][offset]:
+        if offset_1 <= comparisons:
+            result_1 = (result_1 * 16807) % 2147483647
+            if result_1 % 4 == 0:
+                offset_1 += 1
+        if offset_2 <= comparisons:
+            result_2 = (result_2 * 48271) % 2147483647
+            if result_2 % 8 == 0:
+                offset_2 += 1
+        if offset_1 > comparisons and offset_2 > comparisons:
+            if result_1 & 65535 == result_2 & 65535:
                 match_count += 1
-            offset += 1
+            comparisons += 1
     return match_count
 
 '''
