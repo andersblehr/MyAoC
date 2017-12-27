@@ -129,48 +129,37 @@ def puzzle_2(test_input=None):
 
 # Day 21 shared code
 def day21_shared(rules, puzzle):
-    def match(square, rule, size):
+    def permutate_square():
         def flip(square):
             flipped_square = []
-            for row in range(size):
+            for row in range(square_size):
                 flipped_square.append(square[row][::-1])
             return flipped_square
 
         def rotate(square):
-            rotated_square = [[] for _ in range(size)]
-            for row in reversed(range(size)):
-                for column in range(size):
-                    rotated_square[column].append(square[row][column])
+            rotated_square = ['' for _ in range(square_size)]
+            for row in reversed(range(square_size)):
+                for column in range(square_size):
+                    rotated_square[column] += square[row][column]
             return rotated_square
 
-        def match_permutation(permutation):
-            matches = True
-            for row in range(size):
-                matches = matches and ''.join(rule[row]) == ''.join(permutation[row])
-            return matches
+        r_0 = square
+        r_0f = flip(r_0)
+        r_1 = rotate(r_0)
+        r_1f = flip(r_1)
+        r_2 = rotate(r_1)
+        r_2f = flip(r_2)
+        r_3 = rotate(r_2)
+        r_3f = flip(r_3)
+        return (r_0, r_0f, r_1, r_1f, r_2, r_2f, r_3, r_3f)
 
-        matches = match_permutation(square)
-        if not matches:
-            flipped = flip(square)
-            matches = match_permutation(flipped)
-        if not matches:
-            square = rotate(square)
-            matches = match_permutation(square)
-        if not matches:
-            flipped = flip(square)
-            matches = match_permutation(flipped)
-        if not matches:
-            square = rotate(square)
-            matches = match_permutation(square)
-        if not matches:
-            flipped = flip(square)
-            matches = match_permutation(flipped)
-        if not matches:
-            square = rotate(square)
-            matches = match_permutation(square)
-        if not matches:
-            flipped = flip(square)
-            matches = match_permutation(flipped)
+    def rule_matches():
+        for permutation in permutations:
+            matches = True
+            for row in range(square_size):
+                matches = matches and rule[row] == permutation[row]
+            if matches:
+                break
         return matches
 
     pattern = ['.#.', '..#', '###']
@@ -186,8 +175,9 @@ def day21_shared(rules, puzzle):
                 for i in range(square_size):
                     offset_y = d_y * square_size + i
                     square.append(pattern[offset_y][offset_x:offset_x + square_size])
+                permutations = permutate_square()
                 for rule in rules:
-                    if len(rule) == square_size and match(square, rule, square_size):
+                    if len(rule) == square_size and rule_matches():
                         for row in range(len(rules[rule])):
                             overall_row = d_y * (square_size + 1) + row
                             enhanced_pattern[overall_row] += rules[rule][row]
