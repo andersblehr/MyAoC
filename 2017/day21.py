@@ -129,23 +129,23 @@ def puzzle_2(test_input=None):
 
 # Day 21 shared code
 def day21_shared(rules, puzzle):
-    def match(square, rule):
+    def match(square, rule, size):
         def flip(square):
             flipped_square = []
-            for row in range(len(square)):
+            for row in range(size):
                 flipped_square.append(square[row][::-1])
             return flipped_square
 
         def rotate(square):
-            rotated_square = [[] for _ in range(len(square))]
-            for row in reversed(range(len(square))):
-                for column in range(len(square)):
+            rotated_square = [[] for _ in range(size)]
+            for row in reversed(range(size)):
+                for column in range(size):
                     rotated_square[column].append(square[row][column])
             return rotated_square
 
         def match_permutation(permutation):
             matches = True
-            for row in range(len(rule)):
+            for row in range(size):
                 matches = matches and ''.join(rule[row]) == ''.join(permutation[row])
             return matches
 
@@ -173,12 +173,12 @@ def day21_shared(rules, puzzle):
             matches = match_permutation(flipped)
         return matches
 
-    pattern = [list('.#.'), list('..#'), list('###')]
+    pattern = ['.#.', '..#', '###']
     for _ in range(5 if puzzle == 1 else 18):
         size = len(pattern)
         square_size = 2 if size % 2 == 0 else 3
         ratio = size / square_size
-        enhanced_pattern = [[] for _ in range(ratio * (square_size + 1))]
+        enhanced_pattern = ['' for _ in range(ratio * (square_size + 1))]
         for d_y in range(ratio):
             for d_x in range(ratio):
                 square = []
@@ -187,17 +187,15 @@ def day21_shared(rules, puzzle):
                     offset_y = d_y * square_size + i
                     square.append(pattern[offset_y][offset_x:offset_x + square_size])
                 for rule in rules:
-                    if len(rule) == square_size and match(square, rule):
+                    if len(rule) == square_size and match(square, rule, square_size):
                         for row in range(len(rules[rule])):
                             overall_row = d_y * (square_size + 1) + row
-                            enhanced_pattern[overall_row] += list(rules[rule][row])
+                            enhanced_pattern[overall_row] += rules[rule][row]
                         break
         pattern = enhanced_pattern
     pixels_on = 0
     for row in pattern:
-        for pixel in row:
-            if pixel == '#':
-                pixels_on += 1
+        pixels_on += row.count('#')
     return pixels_on
 
 '''
