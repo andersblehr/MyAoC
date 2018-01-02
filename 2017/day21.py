@@ -144,14 +144,14 @@ def day21_shared(rules, puzzle):
             return rotated_square
 
         r_0 = square
-        r_0f = flip(r_0)
+        rf_0 = flip(r_0)
         r_1 = rotate(r_0)
-        r_1f = flip(r_1)
+        rf_1 = flip(r_1)
         r_2 = rotate(r_1)
-        r_2f = flip(r_2)
+        rf_2 = flip(r_2)
         r_3 = rotate(r_2)
-        r_3f = flip(r_3)
-        return (r_0, r_0f, r_1, r_1f, r_2, r_2f, r_3, r_3f)
+        rf_3 = flip(r_3)
+        return (r_0, rf_0, r_1, rf_1, r_2, rf_2, r_3, rf_3)
 
     def rule_matches():
         for permutation in permutations:
