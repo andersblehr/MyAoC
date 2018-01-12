@@ -1,5 +1,5 @@
 # MyAoC
-My solutions to http://adventofcode.com/ puzzles
+My solutions to [Advent of Code](http://adventofcode.com/) puzzles
 
 ```
 MyAoC% cd 2017
